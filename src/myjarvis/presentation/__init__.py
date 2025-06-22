@@ -13,4 +13,4 @@ This layer is composed of three main sub-packages:
 The presentation layer interacts with the application layer to execute business
 logic and retrieve data. It should not contain any business logic itself and
 should be kept as thin as possible.
-""" 
+"""

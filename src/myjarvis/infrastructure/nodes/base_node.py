@@ -51,4 +51,4 @@ class BaseNode(ABC):
         Returns:
             A list of strings, where each string is a command name.
         """
-        pass 
+        pass

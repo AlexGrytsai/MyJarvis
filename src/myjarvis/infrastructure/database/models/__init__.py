@@ -7,4 +7,4 @@ These models are used by the repository implementations to interact with the dat
 A declarative base should be defined (e.g., in a shared `base.py` or within `session.py`)
 and all models in this package should inherit from it. This allows Alembic to discover
 the models for database migrations.
-""" 
+"""

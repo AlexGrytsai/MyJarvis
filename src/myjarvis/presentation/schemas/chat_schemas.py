@@ -20,4 +20,4 @@ Example:
     class ChatMessageRead(BaseModel):
         content: str
         sender: str # "user" or "agent"
-""" 
+"""

@@ -57,4 +57,4 @@ class SearchNode(BaseNode):
         raise NotImplementedError(
             "The `get_available_commands` method for SearchNode is not "
             "implemented yet."
-        ) 
+        )

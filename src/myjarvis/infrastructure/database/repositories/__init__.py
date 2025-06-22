@@ -8,4 +8,4 @@ Each repository class in this package will:
 - Depend on an `AsyncSession` from SQLAlchemy to perform database operations.
 - Implement the methods defined in its corresponding domain repository interface.
 - Handle the mapping between domain entities and SQLAlchemy ORM models.
-""" 
+"""

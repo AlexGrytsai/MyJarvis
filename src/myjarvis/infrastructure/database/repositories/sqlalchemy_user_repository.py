@@ -16,4 +16,4 @@ Implementation Details:
 - A private method `_to_entity` could be used to map from `UserModel` to `User` entity,
   and `_from_entity` to map from the entity to the model. This separates the mapping
   logic from the data access logic.
-""" 
+"""

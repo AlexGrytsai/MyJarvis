@@ -18,4 +18,4 @@ Implementation Details:
 - It should also define a many-to-many relationship with `NodeModel` to represent
   the nodes attached to this agent. This will require an association table.
   - `nodes = relationship("NodeModel", secondary="agent_nodes_association")`
-""" 
+"""

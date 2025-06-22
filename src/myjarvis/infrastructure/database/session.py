@@ -13,4 +13,4 @@ Implementation Details:
   managing the transaction scope (commit on success, rollback on failure).
 - Database connection settings should be loaded from a configuration object (e.g., Pydantic's BaseSettings)
   to avoid hardcoding credentials.
-""" 
+"""

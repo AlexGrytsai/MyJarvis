@@ -14,4 +14,4 @@ related to a specific domain entity or feature:
 - `agent_schemas.py`: Schemas for AI agents.
 - `node_schemas.py`: Schemas for nodes.
 - `chat_schemas.py`: Schemas for chat messages.
-""" 
+"""

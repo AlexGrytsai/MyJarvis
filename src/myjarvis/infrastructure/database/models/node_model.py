@@ -14,4 +14,4 @@ Implementation Details:
 - It should define the many-to-many relationship with `AgentModel` if not already defined
   on the agent side, but typically this is managed via the `agent_model`'s relationship
   and a separate association table.
-""" 
+"""

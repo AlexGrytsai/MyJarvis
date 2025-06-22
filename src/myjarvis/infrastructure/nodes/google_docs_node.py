@@ -62,4 +62,4 @@ class GoogleDocsNode(BaseNode):
         raise NotImplementedError(
             "The `get_available_commands` method for GoogleDocsNode is not "
             "implemented yet."
-        ) 
+        )

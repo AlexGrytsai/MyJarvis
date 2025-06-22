@@ -8,4 +8,4 @@ without breaking existing clients.
 This package contains the following modules:
 - `v1`: Contains the first version of the API.
 - `dependencies`: Contains dependency injection providers for the API.
-""" 
+"""

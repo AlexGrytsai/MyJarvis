@@ -59,4 +59,4 @@ class CalendarNode(BaseNode):
         raise NotImplementedError(
             "The `get_available_commands` method for CalendarNode is not "
             "implemented yet."
-        ) 
+        )

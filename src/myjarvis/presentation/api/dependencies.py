@@ -30,4 +30,4 @@ Example:
         return AgentService(agent_repository=repo)
 
     AgentServiceDep = Annotated[AgentService, Depends(get_agent_service)]
-""" 
+"""

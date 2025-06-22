@@ -23,4 +23,4 @@ Example:
 
         class Config:
             from_attributes = True
-""" 
+"""

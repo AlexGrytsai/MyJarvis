@@ -36,4 +36,4 @@ Example:
                     response = await call_next(request)
                     return response
             raise HTTPException(status_code=401, detail="Not authenticated")
-""" 
+"""

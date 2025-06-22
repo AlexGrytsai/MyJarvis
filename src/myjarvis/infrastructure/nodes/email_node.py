@@ -58,4 +58,4 @@ class EmailNode(BaseNode):
         raise NotImplementedError(
             "The `get_available_commands` method for EmailNode is not "
             "implemented yet."
-        ) 
+        )

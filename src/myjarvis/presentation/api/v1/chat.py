@@ -19,4 +19,4 @@ Implementation Details:
 - Use the dependency injection system to get the `SendMessageHandler`.
 - Use the schemas from `src/myjarvis/presentation/schemas/chat_schemas.py` for
   request and response validation.
-""" 
+"""
