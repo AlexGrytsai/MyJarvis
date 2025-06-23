@@ -1,5 +1,5 @@
-from dataclasses import dataclass, field
-from uuid import UUID, uuid4
+from dataclasses import dataclass
+from uuid import UUID
 
 
 @dataclass(frozen=True, slots=True)
@@ -10,7 +10,7 @@ class AgentId:
     This value object wraps a UUID and provides a string representation.
     """
 
-    value: UUID = field(default_factory=uuid4)
+    value: UUID
 
     def __str__(self) -> str:
         return str(self.value)
