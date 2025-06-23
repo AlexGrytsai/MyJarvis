@@ -70,6 +70,13 @@ class TestUser:
         with pytest.raises(NewEmailSameAsCurrent):
             user.change_email(user.email)
 
+    def test_change_email_to_same_email_different_case_raises_exception(
+        self, user: User
+    ):
+        same_email_different_case = Email(str(user.email).upper())
+        with pytest.raises(NewEmailSameAsCurrent):
+            user.change_email(same_email_different_case)
+
     def test_change_username_successfully(self, user: User):
         new_username = "new_username"
         original_updated_at = user.updated_at
@@ -151,6 +158,17 @@ class TestUser:
 
         assert agent_id in user.agent_ids
         assert user.updated_at > original_updated_at
+
+    def test_add_multiple_agents_successfully(self, user: User):
+        agent_id1 = AgentId(uuid.uuid4())
+        agent_id2 = AgentId(uuid.uuid4())
+
+        user.add_agent(agent_id1)
+        user.add_agent(agent_id2)
+
+        assert agent_id1 in user.agent_ids
+        assert agent_id2 in user.agent_ids
+        assert len(user.agent_ids) == 2
 
     def test_add_existing_agent_does_not_change_state(self, user: User):
         agent_id = AgentId(uuid.uuid4())
