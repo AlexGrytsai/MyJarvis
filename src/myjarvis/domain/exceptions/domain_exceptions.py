@@ -13,3 +13,27 @@ Implementation details:
   - `NodeNotFoundException`
   - `InvalidActionException`
 """
+
+
+class DomainException(Exception):
+    """Base class for domain-specific exceptions."""
+
+
+class NewEmailSameAsCurrent(DomainException):
+    """Raised when the new email is the same as the current email."""
+
+
+class NewUsernameSameAsCurrent(NewEmailSameAsCurrent):
+    """Raised when the new username is the same as the current username."""
+
+
+class LLMProviderAlreadyExistsInUser(DomainException):
+    """Raised when the LLM provider already exists."""
+
+
+class LLMProviderNotExistsInUser(DomainException):
+    """Raised when the LLM provider does not exist in the user."""
+
+
+class AgentNotFoundInUser(DomainException):
+    """Raised when the agent is not found in the user."""

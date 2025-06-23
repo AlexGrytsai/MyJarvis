@@ -15,3 +15,38 @@ Implementation details:
 - The entity should ensure its invariants, for example, an agent cannot have
   duplicate nodes.
 """
+
+from datetime import datetime, timezone
+from typing import List
+
+from pydantic import BaseModel, Field
+
+from myjarvis.domain.value_objects import AgentId, NodeId, UserId
+
+
+class AIAgent(BaseModel):
+    """
+    The AIAgent is a core entity of the domain. It represents an AI agent that can
+    be created by a User. Each agent has a specific configuration, including a base
+    prompt, a selected LLM model, and a set of connected Nodes (tools) that it can
+    use.
+    """
+
+    id: AgentId = Field(default_factory=AgentId)
+    user_id: UserId
+    name: str
+    base_prompt: str
+    llm_model: str
+    node_ids: List[NodeId] = Field(default_factory=list)
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
+    updated_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
+
+    class Config:
+        arbitrary_types_allowed = True
+
+    # Business logic methods like attach_node, detach_node, etc.
+    # would be added here in the future.
