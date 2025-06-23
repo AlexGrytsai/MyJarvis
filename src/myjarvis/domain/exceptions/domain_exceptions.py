@@ -27,5 +27,9 @@ class NewUsernameSameAsCurrent(NewEmailSameAsCurrent):
     """Raised when the new username is the same as the current username."""
 
 
-class LLMProviderAlreadyExists(DomainException):
+class LLMProviderAlreadyExistsInUser(DomainException):
     """Raised when the LLM provider already exists."""
+
+
+class LLMProviderNotExistsInUser(DomainException):
+    """Raised when the LLM provider does not exist in the user."""
