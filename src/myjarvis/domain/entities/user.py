@@ -1,15 +1,112 @@
-"""
-This module defines the User entity.
+from __future__ import annotations
 
-The User entity represents a user of the system. Each user can create and manage
-multiple AI agents. The user is the root aggregate for the agents they own.
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
+from typing import Dict, Optional, Set
 
-Implementation details:
-- The class should be a Pydantic BaseModel for validation.
-- It should contain fields like `user_id`, `email`, `created_at`, and an
-  optional `telegram_id` for integrations.
-- It should have methods for validation, e.g., ensuring the email format is
-  correct.
-- Business logic related to the user, such as creating an agent, could be
-  initiated from this entity or a dedicated domain service.
-"""
+from src.myjarvis.domain.exceptions.domain_exceptions import (
+    NewEmailSameAsCurrent,
+    NewUsernameSameAsCurrent,
+    LLMProviderAlreadyExistsInUser,
+    LLMProviderNotExistsInUser,
+    AgentNotFoundInUser,
+)
+from src.myjarvis.domain.value_objects import (
+    AgentId,
+    Email,
+    LlmApiKey,
+    LlmProvider,
+    UserId,
+)
+
+
+@dataclass
+class User:
+    """
+    User entity represents the root aggregate for a user in the system.
+    """
+
+    id: UserId
+    email: Email
+    username: Optional[str] = None
+    telegram_id: Optional[str] = None
+    llm_api_keys: Dict[LlmProvider, LlmApiKey] = field(default_factory=dict)
+    agent_ids: Set[AgentId] = field(default_factory=set)
+    created_at: datetime = field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
+    updated_at: datetime = field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
+
+    @classmethod
+    def create(
+        cls, user_id: UserId, email: Email, username: Optional[str] = None
+    ) -> User:
+        """Factory method to create a new user."""
+        return cls(id=user_id, email=email, username=username)
+
+    def change_email(self, new_email: Email) -> None:
+        """Changes the user's email address."""
+        if self.email == new_email:
+            raise NewEmailSameAsCurrent(
+                "New email cannot be the same as the current email."
+            )
+        self.email = new_email
+        self._touch()
+
+    def change_username(self, new_username: Optional[str] = None) -> None:
+        """Changes the user's display name."""
+        if self.username == new_username:
+            raise NewUsernameSameAsCurrent(
+                "New username cannot be the same as the current username."
+            )
+        self.username = new_username
+        self._touch()
+
+    def add_api_key(self, api_key: LlmApiKey) -> None:
+        """Adds a new API key for an LLM provider."""
+        if api_key.provider in self.llm_api_keys:
+            raise LLMProviderAlreadyExistsInUser(
+                f"API key for provider '{api_key.provider.value}' "
+                f"already exists."
+            )
+        self.llm_api_keys[api_key.provider] = api_key
+        self._touch()
+
+    def update_llm_api_key(self, api_key: LlmApiKey):
+        """Updates an existing LLM API key."""
+        if api_key.provider not in self.llm_api_keys:
+            raise LLMProviderNotExistsInUser(
+                f"API key for provider '{api_key.provider.value}' not found."
+            )
+        self.llm_api_keys[api_key.provider] = api_key
+        self._touch()
+
+    def remove_llm_api_key(self, provider: LlmProvider):
+        """Removes an LLM API key by its provider."""
+        if provider not in self.llm_api_keys:
+            raise LLMProviderNotExistsInUser(
+                f"API key for provider '{provider.value}' not found."
+            )
+        del self.llm_api_keys[provider]
+        self._touch()
+
+    def add_agent(self, agent_id: AgentId):
+        """Associates a new AI agent with the user."""
+        if agent_id not in self.agent_ids:
+            self.agent_ids.add(agent_id)
+            self._touch()
+
+    def remove_agent(self, agent_id: AgentId):
+        """Removes the association with an AI agent."""
+        if agent_id not in self.agent_ids:
+            AgentNotFoundInUser(
+                f"Agent with id '{agent_id}' not found for this user."
+            )
+        self.agent_ids.remove(agent_id)
+        self._touch()
+
+    def _touch(self):
+        """Updates the `updated_at` timestamp."""
+        self.updated_at = datetime.now(timezone.utc)
