@@ -21,3 +21,6 @@ class DomainException(Exception):
 
 class NewEmailSameAsCurrent(DomainException):
     """Raised when the new email is the same as the current email."""
+
+class NewUsernameSameAsCurrent(NewEmailSameAsCurrent):
+    """Raised when the new username is the same as the current username."""
