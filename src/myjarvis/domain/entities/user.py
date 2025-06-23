@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, InitVar
 from datetime import datetime, timezone
-from typing import Dict, Optional, Set
+from typing import Dict, Optional, Set, Callable
 
 from src.myjarvis.domain.exceptions.domain_exceptions import (
     NewEmailSameAsCurrent,
@@ -28,23 +28,38 @@ class User:
 
     id: UserId
     email: Email
+    created_at: datetime
+    updated_at: datetime
     username: Optional[str] = None
     telegram_id: Optional[str] = None
     llm_api_keys: Dict[LlmProvider, LlmApiKey] = field(default_factory=dict)
     agent_ids: Set[AgentId] = field(default_factory=set)
-    created_at: datetime = field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
-    updated_at: datetime = field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
+
+    clock: InitVar[Optional[Callable[[], datetime]]] = None
+    _clock: Callable[[], datetime] = field(init=False, repr=False)
+
+    def __post_init__(self, clock: Optional[Callable[[], datetime]]):
+        self._clock = clock or (lambda: datetime.now(timezone.utc))
 
     @classmethod
     def create(
-        cls, user_id: UserId, email: Email, username: Optional[str] = None
+        cls,
+        user_id: UserId,
+        email: Email,
+        username: Optional[str] = None,
+        clock: Optional[Callable[[], datetime]] = None,
     ) -> User:
         """Factory method to create a new user."""
-        return cls(id=user_id, email=email, username=username)
+        _clock = clock or (lambda: datetime.now(timezone.utc))
+        now = _clock()
+        return cls(
+            id=user_id,
+            email=email,
+            username=username,
+            created_at=now,
+            updated_at=now,
+            clock=clock,
+        )
 
     def change_email(self, new_email: Email) -> None:
         """Changes the user's email address."""
@@ -109,4 +124,4 @@ class User:
 
     def _touch(self):
         """Updates the `updated_at` timestamp."""
-        self.updated_at = datetime.now(timezone.utc)
+        self.updated_at = self._clock()
