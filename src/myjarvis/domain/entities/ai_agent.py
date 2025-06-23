@@ -24,6 +24,7 @@ class AIAgent:
     This class encapsulates the state and business logic of the agent.
     """
 
+    id: AgentId
     user_id: UserId
     name: AgentName
     llm_model: LlmModel
@@ -31,7 +32,6 @@ class AIAgent:
     created_at: datetime
     updated_at: datetime
 
-    id: AgentId = field(default_factory=AgentId)
     description: Optional[str] = None
     base_prompt: Optional[str] = None
     node_ids: List[NodeId] = field(default_factory=list)
@@ -47,6 +47,7 @@ class AIAgent:
     @classmethod
     def create(
         cls,
+        agent_id: AgentId,
         user_id: UserId,
         name: AgentName,
         llm_model: LlmModel,
@@ -56,6 +57,7 @@ class AIAgent:
         _clock = clock or (lambda: datetime.now(timezone.utc))
         now = _clock()
         return cls(
+            id=agent_id,
             user_id=user_id,
             name=name,
             llm_model=llm_model,
