@@ -31,14 +31,19 @@ class AIAgent(BaseModel):
     prompt, a selected LLM model, and a set of connected Nodes (tools) that it can
     use.
     """
+
     id: AgentId = Field(default_factory=AgentId)
     user_id: UserId
     name: str
     base_prompt: str
     llm_model: str
     node_ids: List[NodeId] = Field(default_factory=list)
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
+    updated_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
 
     class Config:
         arbitrary_types_allowed = True
