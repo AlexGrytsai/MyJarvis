@@ -1,6 +1,6 @@
 # MyJarvis
 
-> **Note:** This project is currently under active development. Only the basic project structure has been implemented at this stage.
+> **Note:** This project is currently under active development. The core domain model for the `User` aggregate and the basic project structure are in place.
 
 ## About The Project
 
@@ -63,6 +63,8 @@ A more detailed structure can be found in `detailed_plan.md`.
 The project development is planned in several stages:
 1.  **Environment & Core Infrastructure Setup**
 2.  **Domain Layer Implementation**
+    - [x] `User` Aggregate (Entity, Value Objects, Repository Interface).
+    - [ ] `AIAgent` and `Node` Aggregates.
 3.  **Application Layer Implementation**
 4.  **Database & Persistence (Infrastructure)**
 5.  **Node System Implementation (Infrastructure)**
@@ -70,6 +72,9 @@ The project development is planned in several stages:
 7.  **Cache & External Services (Infrastructure)**
 8.  **Presentation Layer (API)**
 9.  **Testing (Unit, Integration, E2E)**
+    - [x] Unit tests for `User` Aggregate.
+    - [ ] Integration tests for persistence layer.
+    - [ ] E2E tests for API endpoints.
 10. **DevOps & Deployment**
 
 ## Getting Started
