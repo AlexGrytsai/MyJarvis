@@ -39,5 +39,9 @@ class TemperatureNotValid(DomainException):
     """Raised when the temperature is not valid."""
 
 
+class MaxTokensNotValid(DomainException):
+    """Raised when the max tokens is not valid."""
+
+
 class AgentNotFoundInUser(DomainException):
     """Raised when the agent is not found in the user."""
