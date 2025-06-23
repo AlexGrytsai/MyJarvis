@@ -32,7 +32,7 @@ class UserRepository(ABC):
         pass
 
     @abstractmethod
-    async def update(self, user: User) -> None:
+    async def update(self, user: User) -> User:
         """Updates an existing user in the repository."""
         pass
 
