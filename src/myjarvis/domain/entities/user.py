@@ -15,9 +15,9 @@ from src.myjarvis.domain.value_objects import (
     AgentId,
     Email,
     LlmApiKey,
-    LlmProvider,
     UserId,
 )
+from src.myjarvis.domain.value_objects.llm_provider import LlmProvider
 
 
 @dataclass
