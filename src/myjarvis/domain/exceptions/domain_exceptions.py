@@ -35,5 +35,9 @@ class LLMProviderNotExistsInUser(DomainException):
     """Raised when the LLM provider does not exist in the user."""
 
 
+class TemperatureNotValid(DomainException):
+    """Raised when the temperature is not valid."""
+
+
 class AgentNotFoundInUser(DomainException):
     """Raised when the agent is not found in the user."""

@@ -3,6 +3,7 @@ from .domain_exceptions import LLMProviderAlreadyExistsInUser
 from .domain_exceptions import LLMProviderNotExistsInUser
 from .domain_exceptions import NewEmailSameAsCurrent
 from .domain_exceptions import NewUsernameSameAsCurrent
+from .domain_exceptions import TemperatureNotValid
 
 __all__ = [
     "AgentNotFoundInUser",
@@ -10,4 +11,5 @@ __all__ = [
     "NewUsernameSameAsCurrent",
     "LLMProviderAlreadyExistsInUser",
     "LLMProviderNotExistsInUser",
+    "TemperatureNotValid",
 ]
