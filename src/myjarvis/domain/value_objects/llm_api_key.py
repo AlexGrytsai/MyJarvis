@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from src.myjarvis.domain.value_objects import LlmProvider
+from src.myjarvis.domain.value_objects.llm_provider import LlmProvider
 
 
 @dataclass(frozen=True)

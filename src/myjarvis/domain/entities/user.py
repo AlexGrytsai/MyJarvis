@@ -15,9 +15,9 @@ from src.myjarvis.domain.value_objects import (
     AgentId,
     Email,
     LlmApiKey,
-    LlmProvider,
     UserId,
 )
+from src.myjarvis.domain.value_objects.llm_provider import LlmProvider
 
 
 @dataclass
@@ -101,7 +101,7 @@ class User:
     def remove_agent(self, agent_id: AgentId):
         """Removes the association with an AI agent."""
         if agent_id not in self.agent_ids:
-            AgentNotFoundInUser(
+            raise AgentNotFoundInUser(
                 f"Agent with id '{agent_id}' not found for this user."
             )
         self.agent_ids.remove(agent_id)
