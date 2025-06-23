@@ -94,9 +94,7 @@ class TestUser:
             user.change_username(user.username)
 
     def test_add_api_key_successfully(self, user: User):
-        api_key = LlmApiKey(
-            provider=LlmProvider.OPENAI, encrypted_key="test_key"
-        )
+        api_key = LlmApiKey(provider=LlmProvider.OPENAI, key="test_key")
         original_updated_at = user.updated_at
 
         user.add_api_key(api_key)
@@ -106,9 +104,7 @@ class TestUser:
         assert user.updated_at > original_updated_at
 
     def test_add_existing_api_key_raises(self, user: User):
-        api_key = LlmApiKey(
-            provider=LlmProvider.OPENAI, encrypted_key="test_key"
-        )
+        api_key = LlmApiKey(provider=LlmProvider.OPENAI, key="test_key")
         user.add_api_key(api_key)
 
         with pytest.raises(LLMProviderAlreadyExistsInUser):
@@ -116,14 +112,10 @@ class TestUser:
 
     def test_update_llm_api_key_successfully(self, user: User):
         provider = LlmProvider.GEMINI
-        initial_api_key = LlmApiKey(
-            provider=provider, encrypted_key="initial_key"
-        )
+        initial_api_key = LlmApiKey(provider=provider, key="initial_key")
         user.add_api_key(initial_api_key)
 
-        updated_api_key = LlmApiKey(
-            provider=provider, encrypted_key="updated_key"
-        )
+        updated_api_key = LlmApiKey(provider=provider, key="updated_key")
         original_updated_at = user.updated_at
 
         user.update_llm_api_key(updated_api_key)
@@ -132,15 +124,13 @@ class TestUser:
         assert user.updated_at > original_updated_at
 
     def test_update_non_existent_api_key_raises(self, user: User):
-        api_key = LlmApiKey(
-            provider=LlmProvider.ANTHROPIC, encrypted_key="test_key"
-        )
+        api_key = LlmApiKey(provider=LlmProvider.ANTHROPIC, key="test_key")
         with pytest.raises(LLMProviderNotExistsInUser):
             user.update_llm_api_key(api_key)
 
     def test_remove_llm_api_key_successfully(self, user: User):
         provider = LlmProvider.OPENAI
-        api_key = LlmApiKey(provider=provider, encrypted_key="test_key")
+        api_key = LlmApiKey(provider=provider, key="test_key")
         user.add_api_key(api_key)
         original_updated_at = user.updated_at
 
