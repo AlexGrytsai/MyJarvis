@@ -20,3 +20,6 @@ class LlmApiKey:
 
     def __str__(self) -> str:
         return f"***{self.key[-4:]}" if len(self.key) > 4 else "***"
+
+    def __repr__(self) -> str:
+        return f"***{self.key[-4:]}" if len(self.key) > 4 else "***"
