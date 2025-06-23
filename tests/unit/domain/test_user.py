@@ -83,6 +83,10 @@ class TestUser:
         user.change_username(None)
         assert user.username is None
 
+    def test_change_username_to_empty_string(self, user: User):
+        user.change_username("")
+        assert user.username == ""
+
     def test_change_username_to_same_username_raises_exception(
         self, user: User
     ):
