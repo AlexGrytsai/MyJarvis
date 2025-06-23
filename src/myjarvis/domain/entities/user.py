@@ -48,7 +48,7 @@ class User:
 
     def change_email(self, new_email: Email) -> None:
         """Changes the user's email address."""
-        if self.email == new_email:
+        if self.email.value.lower() == new_email.value.lower():
             raise NewEmailSameAsCurrent(
                 "New email cannot be the same as the current email."
             )
