@@ -1,6 +1,3 @@
-"""
-This package contains custom domain-specific exceptions.
+from .domain_exceptions import NewEmailSameAsCurrent
 
-Defining custom exceptions makes the domain logic more expressive and allows
-the application layer to handle domain-specific errors gracefully.
-"""
+__all__ = ["NewEmailSameAsCurrent"]

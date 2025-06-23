@@ -17,3 +17,7 @@ Implementation details:
 
 class DomainException(Exception):
     """Base class for domain-specific exceptions."""
+
+
+class NewEmailSameAsCurrent(DomainException):
+    """Raised when the new email is the same as the current email."""
