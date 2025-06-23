@@ -13,3 +13,6 @@ Implementation details:
   - `NodeNotFoundException`
   - `InvalidActionException`
 """
+
+class DomainException(Exception):
+    """Base class for domain-specific exceptions."""
