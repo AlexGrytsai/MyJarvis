@@ -18,6 +18,14 @@ from src.myjarvis.domain.value_objects.message_role import MessageRole
 
 @dataclass(frozen=True, slots=True)
 class Message:
+    """
+    Message value object represents a single message in a conversation.
+    It has a unique identifier, sender's ID, text of the message, timestamp
+    of when the message was sent, the role of the sender, and an optional
+    ID of the parent message. It also has a list of attachments, a dictionary
+    of additional metadata, and an optional maximum text length.
+    """
+
     message_id: UUID
     sender: Union[str, UUID] = ""
     text: str = ""
