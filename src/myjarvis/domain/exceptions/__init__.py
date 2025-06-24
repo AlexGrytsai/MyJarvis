@@ -1,4 +1,5 @@
 from .domain_exceptions import AgentNotFoundInUser
+from .domain_exceptions import AttachmentsToMessageInWrongFormat
 from .domain_exceptions import LLMProviderAlreadyExistsInUser
 from .domain_exceptions import LLMProviderNotExistsInUser
 from .domain_exceptions import MaxTokensNotValid
@@ -10,7 +11,7 @@ from .domain_exceptions import NewEmailSameAsCurrent
 from .domain_exceptions import NewUsernameSameAsCurrent
 from .domain_exceptions import TemperatureNotValid
 from .domain_exceptions import UnavailableAgentName
-from .domain_exceptions import AttachmentsToMessageInWrongFormat
+from .domain_exceptions import WrongIdType
 
 __all__ = [
     "AgentNotFoundInUser",
@@ -26,4 +27,5 @@ __all__ = [
     "MessageMetaDataWrongFormat",
     "MessageTooLong",
     "AttachmentsToMessageInWrongFormat",
+    "WrongIdType",
 ]
