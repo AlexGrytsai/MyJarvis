@@ -11,6 +11,7 @@ from .domain_exceptions import NewUsernameSameAsCurrent
 from .domain_exceptions import TemperatureNotValid
 from .domain_exceptions import UnavailableAgentName
 from .domain_exceptions import AttachmentsToMessageInWrongFormat
+
 __all__ = [
     "AgentNotFoundInUser",
     "MaxTokensNotValid",
