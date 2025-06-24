@@ -52,3 +52,11 @@ class UnavailableAgentName(DomainException):
     Raised when the user tries to create or update an agent with an
     unavailable name.
     """
+
+
+class MessageException(DomainException):
+    """Raised when a message is not found."""
+
+
+class MessageCouldNotBeEmpty(MessageException):
+    """Raised when a message is not found."""
