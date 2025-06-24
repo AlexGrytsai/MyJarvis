@@ -84,3 +84,7 @@ class AttachmentsToMessageInWrongFormat(MessageException):
 
 class MessageMetaDataWrongFormat(MessageException):
     """Raised when a metadata's message transmitted in the wrong format."""
+
+
+class InvalidMessageRole(DomainException):
+    """Raised when a message role is not valid."""
