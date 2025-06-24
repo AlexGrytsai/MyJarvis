@@ -66,5 +66,9 @@ class MessageCouldNotBeEmpty(MessageException):
     """Raised when a message is not found."""
 
 
+class MessageTooLong(MessageException):
+    """Raised when a message is too long."""
+
+
 class MessageMetaDataWrongFormat(MessageException):
     """Raised when a metadata's message transmitted in the wrong format."""
