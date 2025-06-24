@@ -58,5 +58,9 @@ class MessageException(DomainException):
     """Raised when a message is not found."""
 
 
+class MessageWithoutId(MessageException):
+    """Raised when a message ID is not found."""
+
+
 class MessageCouldNotBeEmpty(MessageException):
     """Raised when a message is not found."""

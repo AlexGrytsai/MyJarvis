@@ -7,7 +7,7 @@ from .domain_exceptions import NewEmailSameAsCurrent
 from .domain_exceptions import NewUsernameSameAsCurrent
 from .domain_exceptions import TemperatureNotValid
 from .domain_exceptions import UnavailableAgentName
-
+from .domain_exceptions import MessageWithoutId
 __all__ = [
     "AgentNotFoundInUser",
     "MaxTokensNotValid",
@@ -18,4 +18,5 @@ __all__ = [
     "TemperatureNotValid",
     "UnavailableAgentName",
     "MessageCouldNotBeEmpty",
+    "MessageWithoutId",
 ]
