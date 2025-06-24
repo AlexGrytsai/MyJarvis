@@ -8,7 +8,7 @@ class AgentName:
     value: str
 
     def __post_init__(self) -> None:
-        if not self.value:
+        if not self.value.strip():
             raise UnavailableAgentName("Agent name cannot be empty")
         if len(self.value) > 100:
             raise UnavailableAgentName(
@@ -16,4 +16,4 @@ class AgentName:
             )
 
     def __str__(self) -> str:
-        return self.value
+        return self.value.strip()
