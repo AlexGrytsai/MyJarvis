@@ -35,5 +35,20 @@ class LLMProviderNotExistsInUser(DomainException):
     """Raised when the LLM provider does not exist in the user."""
 
 
+class TemperatureNotValid(DomainException):
+    """Raised when the temperature is not valid."""
+
+
+class MaxTokensNotValid(DomainException):
+    """Raised when the max tokens is not valid."""
+
+
 class AgentNotFoundInUser(DomainException):
     """Raised when the agent is not found in the user."""
+
+
+class UnavailableAgentName(DomainException):
+    """
+    Raised when the user tries to create or update an agent with an
+    unavailable name.
+    """

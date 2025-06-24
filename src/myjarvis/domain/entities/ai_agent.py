@@ -1,52 +1,144 @@
-"""
-This module defines the AIAgent entity.
+from __future__ import annotations
 
-The AIAgent is a core entity of the domain. It represents an AI agent that can
-be created by a User. Each agent has a specific configuration, including a base
-prompt, a selected LLM model, and a set of connected Nodes (tools) that it can
-use.
-
-Implementation details:
-- The class should be a Pydantic BaseModel for data validation.
-- It should include fields like `agent_id`, `user_id`, `name`, `base_prompt`,
-  `llm_model`, `created_at`, and a list of `node_ids`.
-- It should contain business logic methods such as `attach_node`,
-  `detach_node`, `update_prompt`, etc.
-- The entity should ensure its invariants, for example, an agent cannot have
-  duplicate nodes.
-"""
-
+from dataclasses import dataclass, field, InitVar
 from datetime import datetime, timezone
-from typing import List
+from typing import Callable, List, Optional
 
-from pydantic import BaseModel, Field
+from src.myjarvis.domain.value_objects import (
+    AgentId,
+    NodeId,
+    UserId,
+)
+from src.myjarvis.domain.value_objects.ai_agent_name import AgentName
+from src.myjarvis.domain.value_objects.llm_model import LlmModel
 
-from myjarvis.domain.value_objects import AgentId, NodeId, UserId
 
-
-class AIAgent(BaseModel):
+@dataclass
+class AIAgent:
     """
-    The AIAgent is a core entity of the domain. It represents an AI agent that can
-    be created by a User. Each agent has a specific configuration, including a base
-    prompt, a selected LLM model, and a set of connected Nodes (tools) that it can
-    use.
+    The AIAgent is a core domain entity.
+    It represents an AI agent created by a User.
+
+    Each agent has a specific configuration, including a base prompt,
+    a selected LLM model, and a set of connected Nodes (tools) that it can use.
+    This class encapsulates the state and business logic of the agent.
     """
 
-    id: AgentId = Field(default_factory=AgentId)
+    id: AgentId
     user_id: UserId
-    name: str
-    base_prompt: str
-    llm_model: str
-    node_ids: List[NodeId] = Field(default_factory=list)
-    created_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
-    updated_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
+    name: AgentName
+    llm_model: LlmModel
 
-    class Config:
-        arbitrary_types_allowed = True
+    created_at: datetime
+    updated_at: datetime
 
-    # Business logic methods like attach_node, detach_node, etc.
-    # would be added here in the future.
+    description: Optional[str] = None
+    base_prompt: Optional[str] = None
+    node_ids: List[NodeId] = field(default_factory=list)
+
+    deleted_at: Optional[datetime] = field(default=None)
+
+    clock: InitVar[Optional[Callable[[], datetime]]] = None
+    _clock: Callable[[], datetime] = field(init=False, repr=False)
+
+    def __post_init__(self, clock: Optional[Callable[[], datetime]]):
+        self._clock = clock or (lambda: datetime.now(timezone.utc))
+
+    @classmethod
+    def create(
+        cls,
+        agent_id: AgentId,
+        user_id: UserId,
+        name: AgentName,
+        llm_model: LlmModel,
+        clock: Optional[Callable[[], datetime]] = None,
+    ) -> AIAgent:
+        """Factory method to create a new agent."""
+        _clock = clock or (lambda: datetime.now(timezone.utc))
+        now = _clock()
+        return cls(
+            id=agent_id,
+            user_id=user_id,
+            name=name,
+            llm_model=llm_model,
+            created_at=now,
+            updated_at=now,
+            clock=clock,
+        )
+
+    @property
+    def is_deleted(self) -> bool:
+        """Check if the agent is marked as deleted."""
+        return self.deleted_at is not None
+
+    def delete(self) -> bool:
+        """Mark the agent as deleted (soft delete)."""
+        if not self.is_deleted:
+            self.deleted_at = self._clock()
+            self._touch()
+            return True
+        return False
+
+    def restore(self) -> bool:
+        """Restore a soft-deleted agent."""
+        if self.is_deleted:
+            self.deleted_at = None
+            self._touch()
+            return True
+        return False
+
+    def update_name(self, new_name: AgentName) -> AIAgent:
+        """Update the agent's name."""
+        self.name = new_name
+        self._touch()
+
+        return self
+
+    def update_description(self, new_description: Optional[str]) -> AIAgent:
+        """Update the agent's description."""
+        self.description = new_description
+        self._touch()
+
+        return self
+
+    def update_prompt(self, new_prompt: Optional[str]) -> AIAgent:
+        """Update the agent's base prompt."""
+        self.base_prompt = new_prompt
+        self._touch()
+
+        return self
+
+    def update_llm_model(self, new_model: LlmModel) -> AIAgent:
+        """Update the agent's LLM configuration."""
+        self.llm_model = new_model
+        self._touch()
+
+        return self
+
+    def attach_node(self, node_id: NodeId) -> bool:
+        """
+        Attach a node (tool) to the agent.
+
+        Ensures that the same node is not attached more than once.
+        """
+        if node_id not in self.node_ids:
+            self.node_ids.append(node_id)
+            self._touch()
+            return True
+        return False
+
+    def detach_node(self, node_id: NodeId) -> bool:
+        """
+        Detach a node (tool) from the agent.
+
+        Handles cases where the node is not attached.
+        """
+        if node_id in self.node_ids:
+            self.node_ids.remove(node_id)
+            self._touch()
+            return True
+        return False
+
+    def _touch(self) -> None:
+        """Update the timestamp to the current time using the entity's clock."""
+        self.updated_at = self._clock()
