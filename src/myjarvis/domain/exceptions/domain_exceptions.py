@@ -23,6 +23,10 @@ class WrongIdType(DomainException):
     """Raised when the id type is not valid."""
 
 
+class WrongDatatimeType(DomainException):
+    """Raised when the datetime type is not valid."""
+
+
 class NewEmailSameAsCurrent(DomainException):
     """Raised when the new email is the same as the current email."""
 
