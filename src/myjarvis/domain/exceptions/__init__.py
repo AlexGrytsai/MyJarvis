@@ -3,6 +3,7 @@ from .domain_exceptions import LLMProviderAlreadyExistsInUser
 from .domain_exceptions import LLMProviderNotExistsInUser
 from .domain_exceptions import MaxTokensNotValid
 from .domain_exceptions import MessageCouldNotBeEmpty
+from .domain_exceptions import MessageMetaDataWrongFormat
 from .domain_exceptions import MessageWithoutId
 from .domain_exceptions import NewEmailSameAsCurrent
 from .domain_exceptions import NewUsernameSameAsCurrent
@@ -20,4 +21,5 @@ __all__ = [
     "UnavailableAgentName",
     "MessageCouldNotBeEmpty",
     "MessageWithoutId",
+    "MessageMetaDataWrongFormat",
 ]

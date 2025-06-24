@@ -64,3 +64,7 @@ class MessageWithoutId(MessageException):
 
 class MessageCouldNotBeEmpty(MessageException):
     """Raised when a message is not found."""
+
+
+class MessageMetaDataWrongFormat(MessageException):
+    """Raised when a metadata's message transmitted in the wrong format."""
