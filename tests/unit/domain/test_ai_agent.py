@@ -5,8 +5,8 @@ import pytest
 
 from src.myjarvis.domain.entities import AIAgent
 from src.myjarvis.domain.value_objects import UserId, AgentId, NodeId
-from src.myjarvis.domain.value_objects.ai_agent_name import AgentName
-from src.myjarvis.domain.value_objects.llm_model import LlmModel
+from src.myjarvis.domain.value_objects.ai_agent_name import AgentName, UnavailableAgentName
+from src.myjarvis.domain.value_objects.llm_model import LlmModel, TemperatureNotValid, MaxTokensNotValid
 from src.myjarvis.domain.value_objects.llm_provider import LlmProvider
 
 
@@ -111,16 +111,16 @@ def test_touch_updates_updated_at():
 
 
 def test_agent_name_constraints():
-    with pytest.raises(Exception):
+    with pytest.raises(UnavailableAgentName):
         AgentName("")
-    with pytest.raises(Exception):
+    with pytest.raises(UnavailableAgentName):
         AgentName("a" * 101)
 
 
 def test_llm_model_constraints():
-    with pytest.raises(Exception):
+    with pytest.raises(TemperatureNotValid):
         LlmModel(LlmProvider.OPENAI, "gpt", temperature=-1)
-    with pytest.raises(Exception):
+    with pytest.raises(TemperatureNotValid):
         LlmModel(LlmProvider.OPENAI, "gpt", temperature=2)
-    with pytest.raises(Exception):
+    with pytest.raises(MaxTokensNotValid):
         LlmModel(LlmProvider.OPENAI, "gpt", max_tokens=0)
