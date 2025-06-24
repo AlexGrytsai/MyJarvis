@@ -70,5 +70,9 @@ class MessageTooLong(MessageException):
     """Raised when a message is too long."""
 
 
+class AttachmentsToMessageInWrongFormat(MessageException):
+    """Raised when attachments are not in the correct format."""
+
+
 class MessageMetaDataWrongFormat(MessageException):
     """Raised when a metadata's message transmitted in the wrong format."""
