@@ -82,6 +82,10 @@ class MessageTooLong(MessageException):
     """Raised when a message is too long."""
 
 
+class MessageHasInvalidParentId(MessageException):
+    """Raised when a message has an invalid parent ID."""
+
+
 class AttachmentsToMessageInWrongFormat(MessageException):
     """Raised when attachments are not in the correct format."""
 

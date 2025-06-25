@@ -9,6 +9,7 @@ from .domain_exceptions import LLMProviderNotExistsInUser
 from .domain_exceptions import MaxMessagesNotValid
 from .domain_exceptions import MaxTokensNotValid
 from .domain_exceptions import MessageCouldNotBeEmpty
+from .domain_exceptions import MessageHasInvalidParentId
 from .domain_exceptions import MessageMetaDataWrongFormat
 from .domain_exceptions import MessageTooLong
 from .domain_exceptions import MessageWithoutId
@@ -46,4 +47,5 @@ __all__ = [
     "MaxMessagesNotValid",
     "TimeoutNotValid",
     "MessagesListNotValid",
+    "MessageHasInvalidParentId",
 ]
