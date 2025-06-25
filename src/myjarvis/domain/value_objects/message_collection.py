@@ -11,6 +11,16 @@ from src.myjarvis.domain.value_objects.chat_limits import ChatLimits
 
 @dataclass(frozen=True, slots=True)
 class MessageCollection:
+    """
+    Value object that stores a collection of messages, along with their limits.
+
+    Stores a mapping of message IDs to Message objects, as well as a ChatLimits
+    object that describes the limits of the messages in the collection.
+
+    Also provides methods for adding and removing messages, which return new
+    MessageCollection objects with the updated messages and limits.
+    """
+
     messages: Dict[UUID, Message] = field(default_factory=dict)
     limits: ChatLimits = field(default_factory=ChatLimits)
 
