@@ -1,6 +1,7 @@
+from collections import deque
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import List, Optional, Dict, Any, Union
+from typing import List, Optional, Dict, Any, Union, Deque
 from uuid import UUID
 
 from src.myjarvis.domain.exceptions import (
@@ -20,7 +21,7 @@ class ChatContext:
     context_id: UUID
     agent_id: Union[str, UUID]
     user_id: Union[str, UUID]
-    messages: List[Message] = field(default_factory=list)
+    messages: Deque[Message] = field(default_factory=deque)
     created_at: datetime = field(default_factory=datetime.now)
     updated_at: datetime = field(default_factory=datetime.now)
     timeout: Optional[int] = None
