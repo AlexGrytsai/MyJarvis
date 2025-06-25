@@ -22,8 +22,8 @@ from src.myjarvis.domain.value_objects import Message
 @dataclass
 class ChatContext:
     context_id: UUID
-    agent_id: Union[str, UUID]
-    user_id: Union[str, UUID]
+    agent_id: UUID
+    user_id: UUID
     messages: Dict[UUID, Message] = field(default_factory=dict)
     created_at: datetime = field(default_factory=datetime.now)
     updated_at: datetime = field(default_factory=datetime.now)
