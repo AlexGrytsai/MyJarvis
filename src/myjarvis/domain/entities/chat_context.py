@@ -8,11 +8,6 @@ from uuid import UUID
 from src.myjarvis.domain.exceptions import (
     AgentIdRequired,
     UserIdRequired,
-    ContextIdInvalidFormat,
-    MaxTokensNotValid,
-    MaxMessagesNotValid,
-    TimeoutNotValid,
-    MessagesListNotValid,
     MessageHasInvalidParentId,
     MessageNotFound,
 )
@@ -36,7 +31,7 @@ class ChatContext:
     updated_at: datetime = field(default_factory=datetime.now)
 
     def __post_init__(self):
-        self._validate()
+        self._validate_required_fields()
 
     @classmethod
     def create_with_limits(
@@ -223,34 +218,8 @@ class ChatContext:
             created_at=self.created_at,
         )
 
-    def _validate(self) -> None:
+    def _validate_required_fields(self) -> None:
         if not self.agent_id:
             raise AgentIdRequired("Agent ID (agent_id) required")
         if not self.user_id:
             raise UserIdRequired("User ID (user_id) required")
-        if not isinstance(self.context_id, UUID):
-            raise ContextIdInvalidFormat(
-                "Context ID (context_id) must be UUID"
-            )
-        if self.max_messages is not None and (
-            not isinstance(self.max_messages, int) or self.max_messages <= 0
-        ):
-            raise MaxMessagesNotValid(
-                f"Maximum messages (max_messages) must be positive int "
-                f"or None. Got: {self.max_messages}, "
-                f"type: {type(self.max_messages)}"
-            )
-        if self.max_tokens is not None and (
-            not isinstance(self.max_tokens, int) or self.max_tokens <= 0
-        ):
-            raise MaxTokensNotValid(
-                "Maximum tokens (max_tokens) must be positive int or None"
-            )
-        if self.timeout is not None and (
-            not isinstance(self.timeout, int) or self.timeout <= 0
-        ):
-            raise TimeoutNotValid("Timeout must be positive int or None")
-        if not isinstance(self.messages, dict):
-            raise MessagesListNotValid(
-                f"Messages must be dict. Got: {type(self.messages)}"
-            )
