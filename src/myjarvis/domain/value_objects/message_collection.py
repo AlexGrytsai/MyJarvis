@@ -26,13 +26,18 @@ class MessageCollection:
 
     @property
     def total_tokens(self) -> int:
+        """Returns the total number of tokens in the collection."""
         return sum(message.total_tokens for message in self.messages.values())
 
     @property
     def total_messages(self) -> int:
+        """Returns the total number of messages in the collection."""
         return len(self.messages)
 
     def add_message(self, message: Message) -> MessageCollection:
+        """
+        Adds a message to the collection and returns a new MessageCollection
+        """
         updated_messages = self.messages.copy()
         updated_messages[message.message_id] = message
 
@@ -46,6 +51,10 @@ class MessageCollection:
         )
 
     def remove_message(self, message_id: UUID) -> MessageCollection:
+        """
+        Removes a message from the collection and returns a new
+        MessageCollection
+        """
         if message_id not in self.messages:
             raise MessageNotFound(f"Message with ID: '{message_id}' not found")
 
@@ -59,6 +68,10 @@ class MessageCollection:
         limit: Optional[int] = None,
         max_tokens: Optional[int] = None,
     ) -> List[Message]:
+        """
+        Returns a list of messages in the collection, ordered by timestamp,
+        with the most recent message first.
+        """
         result = []
         token_count = 0
 
@@ -76,6 +89,10 @@ class MessageCollection:
         messages: List[Message],
         limits: ChatLimits,
     ) -> List[Message]:
+        """
+        Enforces the limits on the messages in the collection and returns a new
+        list of messages.
+        """
         return self._enforce_max_tokens(
             messages=self._enforce_max_messages(messages, limits),
             limits=limits,
@@ -85,6 +102,10 @@ class MessageCollection:
     def _enforce_max_messages(
         messages: List[Message], limits: ChatLimits
     ) -> List[Message]:
+        """
+        Enforces the maximum number of messages in the collection and returns a
+        new list of messages.
+        """
         if limits.max_messages is None or len(messages) <= limits.max_messages:
             return messages
 
@@ -95,6 +116,10 @@ class MessageCollection:
         messages: List[Message],
         limits: ChatLimits,
     ) -> List[Message]:
+        """
+        Enforces the maximum number of tokens in the collection and returns
+        a new list of messages.
+        """
         if limits.max_tokens is None or self.total_tokens <= limits.max_tokens:
             return messages
 
