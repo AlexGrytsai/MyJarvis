@@ -121,7 +121,8 @@ class ChatContext:
         return True
 
     def clear_history(self):
-        self.messages = []
+        self.messages.clear()
+        self.total_tokens = 0
         self.updated_at = datetime.now()
 
     def remove_expired(self):
