@@ -1,5 +1,6 @@
 from .domain_exceptions import AgentNotFoundInUser
 from .domain_exceptions import AttachmentsToMessageInWrongFormat
+from .domain_exceptions import EmailNotValid
 from .domain_exceptions import InvalidMessageRole
 from .domain_exceptions import LLMProviderAlreadyExistsInUser
 from .domain_exceptions import LLMProviderNotExistsInUser
@@ -17,6 +18,7 @@ from .domain_exceptions import WrongIdType
 
 __all__ = [
     "AgentNotFoundInUser",
+    "EmailNotValid",
     "MaxTokensNotValid",
     "NewEmailSameAsCurrent",
     "NewUsernameSameAsCurrent",

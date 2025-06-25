@@ -27,6 +27,10 @@ class WrongDatatimeType(DomainException):
     """Raised when the datetime type is not valid."""
 
 
+class EmailNotValid(DomainException):
+    """Raised when the email is not valid."""
+
+
 class NewEmailSameAsCurrent(DomainException):
     """Raised when the new email is the same as the current email."""
 
