@@ -12,6 +12,7 @@ from src.myjarvis.domain.exceptions import (
     MaxMessagesNotValid,
     TimeoutNotValid,
     MessagesListNotValid,
+    MessageHasInvalidParentId,
 )
 from src.myjarvis.domain.value_objects import Message
 
@@ -37,9 +38,10 @@ class ChatContext:
         if message.parent_message_id and all(
             m.message_id != message.parent_message_id for m in self.messages
         ):
-            raise ValueError("parent_message_id does not exist")
+            raise MessageHasInvalidParentId(
+                "Parent ID (parent_message_id) does not exist"
+            )
         self.messages.append(message)
-        self.messages.sort(key=lambda m: m.timestamp)
         self.updated_at = datetime.now()
         self._enforce_limits()
 
