@@ -96,3 +96,7 @@ class InvalidMessageRole(DomainException):
 
 class AgentIdRequired(DomainException):
     """Raised when an agent ID is required, but not provided."""
+
+
+class UserIdRequired(DomainException):
+    """Raised when a user ID is required, but not provided."""
