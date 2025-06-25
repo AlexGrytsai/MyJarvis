@@ -122,5 +122,9 @@ class MessagesListNotValid(DomainException):
     """Raised when the messages list is not valid."""
 
 
+class MessageNotFound(DomainException):
+    """Raised when a message is not found."""
+
+
 class UnexpectedException(DomainException):
     """Raised when an unexpected exception is raised."""

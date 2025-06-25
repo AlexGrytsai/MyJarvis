@@ -11,6 +11,7 @@ from .domain_exceptions import MaxTokensNotValid
 from .domain_exceptions import MessageCouldNotBeEmpty
 from .domain_exceptions import MessageHasInvalidParentId
 from .domain_exceptions import MessageMetaDataWrongFormat
+from .domain_exceptions import MessageNotFound
 from .domain_exceptions import MessageTooLong
 from .domain_exceptions import MessageWithoutId
 from .domain_exceptions import MessagesListNotValid
@@ -50,4 +51,5 @@ __all__ = [
     "MessagesListNotValid",
     "MessageHasInvalidParentId",
     "UnexpectedException",
+    "MessageNotFound",
 ]
