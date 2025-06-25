@@ -112,3 +112,7 @@ class ContextIdInvalidFormat(DomainException):
 
 class TimeoutNotValid(DomainException):
     """Raised when the timeout is not valid."""
+
+
+class MessagesListNotValid(DomainException):
+    """Raised when the messages list is not valid."""

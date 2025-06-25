@@ -12,6 +12,7 @@ from .domain_exceptions import MessageCouldNotBeEmpty
 from .domain_exceptions import MessageMetaDataWrongFormat
 from .domain_exceptions import MessageTooLong
 from .domain_exceptions import MessageWithoutId
+from .domain_exceptions import MessagesListNotValid
 from .domain_exceptions import NewEmailSameAsCurrent
 from .domain_exceptions import NewUsernameSameAsCurrent
 from .domain_exceptions import TemperatureNotValid
@@ -44,4 +45,5 @@ __all__ = [
     "ContextIdInvalidFormat",
     "MaxMessagesNotValid",
     "TimeoutNotValid",
+    "MessagesListNotValid",
 ]
