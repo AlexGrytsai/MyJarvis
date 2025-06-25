@@ -82,6 +82,9 @@ class MessageCollection:
 
         return updated_collection, errors or None
 
+    def clear_history(self) -> MessageCollection:
+        return MessageCollection(limits=self.limits)
+
     def get_history(
         self,
         max_messages: Optional[int] = None,
