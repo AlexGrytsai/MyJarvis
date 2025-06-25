@@ -23,7 +23,6 @@ class ChatContext:
     context_id: UUID
     agent_id: UUID
     user_id: UUID
-    limits: ChatLimits = field(default_factory=ChatLimits)
     message_collection: MessageCollection = field(
         default_factory=MessageCollection
     )
@@ -43,17 +42,17 @@ class ChatContext:
         max_tokens: Optional[int] = None,
         timeout: Optional[int] = None,
     ) -> ChatContext:
-        limits = ChatLimits(
-            max_messages=max_messages,
-            max_tokens=max_tokens,
-            timeout=timeout,
-        )
         return cls(
             context_id=context_id,
             agent_id=agent_id,
             user_id=user_id,
-            limits=limits,
-            message_collection=MessageCollection(limits=limits),
+            message_collection=MessageCollection(
+                limits=ChatLimits(
+                    max_messages=max_messages,
+                    max_tokens=max_tokens,
+                    timeout=timeout,
+                )
+            ),
         )
 
     def add_message(self, message: Message) -> ChatContext:
@@ -192,14 +191,18 @@ class ChatContext:
             max_messages=(
                 max_messages
                 if max_messages is not None
-                else self.limits.max_messages
+                else self.message_collection.limits.max_messages
             ),
             max_tokens=(
                 max_tokens
                 if max_tokens is not None
-                else self.limits.max_tokens
+                else self.message_collection.limits.max_tokens
             ),
-            timeout=timeout if timeout is not None else self.limits.timeout,
+            timeout=(
+                timeout
+                if timeout is not None
+                else self.message_collection.limits.timeout
+            ),
         )
 
         return self._create_updated_context(
