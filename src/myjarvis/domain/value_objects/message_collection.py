@@ -70,6 +70,10 @@ class MessageCollection:
         self,
         message_ids: List[UUID],
     ) -> Tuple[MessageCollection, Optional[List[str]]]:
+        """
+        Removes a list of messages from the collection and returns a new
+        MessageCollection
+        """
         errors = []
         updated_collection = self.messages.copy()
 
@@ -108,6 +112,9 @@ class MessageCollection:
         return result
 
     def restore_history(self, messages: List[Message]) -> MessageCollection:
+        """
+        Restores the history of the collection from a list of messages.
+        """
         sorted_messages = sorted(messages, key=lambda m: m.timestamp)
 
         return MessageCollection(
@@ -118,6 +125,9 @@ class MessageCollection:
     def remove_expired(
         self, timeout: Optional[int]
     ) -> Tuple[MessageCollection, Optional[List[str]]]:
+        """
+        Removes expired messages from the collection and returns a new
+        """
         if not timeout:
             return self, None
 
