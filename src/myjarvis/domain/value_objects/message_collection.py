@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 from uuid import UUID
 
 from src.myjarvis.domain.exceptions import MessageNotFound
@@ -64,6 +64,23 @@ class MessageCollection:
         del updated_messages[message_id]
 
         return MessageCollection(updated_messages, self.limits)
+
+    def partial_remove(
+        self,
+        message_ids: List[UUID],
+    ) -> Tuple[MessageCollection, Optional[List[str]]]:
+        errors = []
+        updated_collection = self.messages.copy()
+
+        for message_id in message_ids:
+            try:
+                updated_collection = updated_collection.remove_message(
+                    message_id
+                )
+            except MessageNotFound:
+                errors.append(f"Message with ID: '{message_id}' not found")
+
+        return updated_collection, errors or None
 
     def get_history(
         self,
