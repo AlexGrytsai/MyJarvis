@@ -57,7 +57,7 @@ class ChatContext:
     ) -> List[Message]:
         result = []
         token_count = 0
-        for message in reversed(self.messages):
+        for message in reversed(self.messages.values()):
             token_count += message.total_tokens
             if (max_tokens and token_count > max_tokens) or (
                 limit and len(result) >= limit
