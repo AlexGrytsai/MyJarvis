@@ -15,6 +15,7 @@ from src.myjarvis.domain.exceptions import (
     MessagesListNotValid,
     MessageHasInvalidParentId,
     UnexpectedException,
+    MessageNotFound,
 )
 from src.myjarvis.domain.value_objects import Message
 
@@ -72,34 +73,39 @@ class ChatContext:
         text: Optional[str] = None,
         attachments: Optional[List[Any]] = None,
         metadata: Optional[Dict[str, Any]] = None,
+        total_tokens: Optional[int] = None,
     ):
-        updated = False
-        new_messages = []
-        for message in self.messages:
-            if message.message_id == message_id:
-                new_m = Message(
-                    message_id=message.message_id,
-                    sender=message.sender,
-                    text=text if text is not None else message.text,
-                    timestamp=message.timestamp,
-                    role=message.role,
-                    parent_message_id=message.parent_message_id,
-                    attachments=(
-                        attachments
-                        if attachments is not None
-                        else message.attachments
-                    ),
-                    metadata=(
-                        metadata if metadata is not None else message.metadata
-                    ),
-                )
-                new_messages.append(new_m)
-                updated = True
-            else:
-                new_messages.append(message)
-        if not updated:
-            raise ValueError("Message not found")
-        self.messages = new_messages
+        message_for_update = self.messages.get(message_id)
+        if not message_for_update:
+            raise MessageNotFound("Message not found")
+
+        updated_message = Message(
+            message_id=message_for_update.message_id,
+            sender=message_for_update.sender,
+            text=text if text is not None else message_for_update.text,
+            timestamp=message_for_update.timestamp,
+            role=message_for_update.role,
+            parent_message_id=message_for_update.parent_message_id,
+            attachments=(
+                attachments
+                if attachments is not None
+                else message_for_update.attachments
+            ),
+            metadata=(
+                metadata
+                if metadata is not None
+                else message_for_update.metadata
+            ),
+            total_tokens=(
+                total_tokens
+                if total_tokens is not None
+                else message_for_update.total_tokens
+            ),
+        )
+        self.messages[message_id] = updated_message
+
+        self._enforce_max_tokens()
+
         self.updated_at = datetime.now()
 
     def remove_message(self, message_id: UUID):
