@@ -1,0 +1,107 @@
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from typing import Dict, List, Optional
+from uuid import UUID
+
+from src.myjarvis.domain.exceptions import MessageNotFound
+from src.myjarvis.domain.value_objects import Message
+from src.myjarvis.domain.value_objects.chat_limits import ChatLimits
+
+
+@dataclass(frozen=True, slots=True)
+class MessageCollection:
+    messages: Dict[UUID, Message] = field(default_factory=dict)
+    limits: ChatLimits = field(default_factory=ChatLimits)
+
+    @property
+    def total_tokens(self) -> int:
+        return sum(message.total_tokens for message in self.messages.values())
+
+    @property
+    def total_messages(self) -> int:
+        return len(self.messages)
+
+    def add_message(self, message: Message) -> MessageCollection:
+        updated_messages = self.messages.copy()
+        updated_messages[message.message_id] = message
+
+        messages_with_limits = self._enforce_limits(
+            messages=list(updated_messages.values()),
+            limits=self.limits,
+        )
+
+        return MessageCollection(
+            {m.message_id: m for m in messages_with_limits}, self.limits
+        )
+
+    def remove_message(self, message_id: UUID) -> MessageCollection:
+        if message_id not in self.messages:
+            raise MessageNotFound(f"Message with ID: '{message_id}' not found")
+
+        updated_messages = self.messages.copy()
+        del updated_messages[message_id]
+
+        return MessageCollection(updated_messages, self.limits)
+
+    def get_history(
+        self,
+        limit: Optional[int] = None,
+        max_tokens: Optional[int] = None,
+    ) -> List[Message]:
+        result = []
+        token_count = 0
+
+        for message in reversed(self.messages.values()):
+            token_count += message.total_tokens
+            if (max_tokens and token_count > max_tokens) or (
+                limit and len(result) >= limit
+            ):
+                break
+            result.insert(0, message)
+        return result
+
+    def _enforce_limits(
+        self,
+        messages: List[Message],
+        limits: ChatLimits,
+    ) -> List[Message]:
+        return self._enforce_max_tokens(
+            messages=self._enforce_max_messages(messages, limits),
+            limits=limits,
+        )
+
+    @staticmethod
+    def _enforce_max_messages(
+        messages: List[Message], limits: ChatLimits
+    ) -> List[Message]:
+        if limits.max_messages is None or len(messages) <= limits.max_messages:
+            return messages
+
+        return messages[-limits.max_messages :]
+
+    def _enforce_max_tokens(
+        self,
+        messages: List[Message],
+        limits: ChatLimits,
+    ) -> List[Message]:
+        if limits.max_tokens is None or self.total_tokens <= limits.max_tokens:
+            return messages
+
+        sorted_messages = sorted(
+            messages, key=lambda m: m.timestamp, reverse=True
+        )
+
+        kept_messages = []
+        accumulated_tokens = 0
+
+        for message in sorted_messages:
+            if (
+                accumulated_tokens + message.total_tokens
+                > self.limits.max_tokens
+            ):
+                break
+            kept_messages.append(message)
+            accumulated_tokens += message.total_tokens
+
+        return kept_messages
