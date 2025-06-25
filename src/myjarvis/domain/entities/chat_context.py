@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections import deque
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -34,7 +36,7 @@ class ChatContext:
         self._validate()
         self._enforce_limits()
 
-    def add_message(self, message: Message):
+    def add_message(self, message: Message) -> ChatContext:
         if message.parent_message_id and all(
             m.message_id != message.parent_message_id for m in self.messages
         ):
@@ -45,6 +47,7 @@ class ChatContext:
         self.total_tokens += message.total_tokens
         self._enforce_limits()
         self.updated_at = datetime.now()
+        return self
 
     def get_history(
         self, limit: Optional[int] = None, max_tokens: Optional[int] = None
@@ -127,20 +130,20 @@ class ChatContext:
         self.updated_at = datetime.now()
         self._enforce_limits()
 
-    def _enforce_limits(self):
+    def _enforce_limits(self) -> None:
         self._enforce_max_messages()
         self._enforce_max_tokens()
 
-    def _enforce_max_messages(self):
+    def _enforce_max_messages(self) -> None:
         if len(self.messages) > self.max_messages:
             self.messages = self.messages[-self.max_messages :]
 
-    def _enforce_max_tokens(self):
+    def _enforce_max_tokens(self) -> None:
         while self.total_tokens > self.max_tokens:
             self.total_tokens -= self.messages[0].total_tokens
             self.messages.popleft()
 
-    def _validate(self):
+    def _validate(self) -> None:
         if not self.agent_id:
             raise AgentIdRequired("Agent ID (agent_id) required")
         if not self.user_id:
