@@ -56,7 +56,7 @@ class ChatContext:
             raise ValueError("parent_message_id does not exist")
         self.messages.append(message)
         self.messages.sort(key=lambda m: m.timestamp)
-        self.updated_at = datetime.utcnow()
+        self.updated_at = datetime.now()
         self._enforce_limits()
 
     def get_history(
@@ -105,39 +105,39 @@ class ChatContext:
         if not updated:
             raise ValueError("Message not found")
         self.messages = new_messages
-        self.updated_at = datetime.utcnow()
+        self.updated_at = datetime.now()
 
     def remove_message(self, message_id: UUID):
         self.messages = [
             m for m in self.messages if m.message_id != message_id
         ]
-        self.updated_at = datetime.utcnow()
+        self.updated_at = datetime.now()
 
     def clear_history(self):
         self.messages = []
-        self.updated_at = datetime.utcnow()
+        self.updated_at = datetime.now()
 
     def remove_expired(self):
         if not self.timeout:
             return
-        now = datetime.utcnow()
+        now = datetime.now()
         self.messages = [
             m
             for m in self.messages
             if (now - m.timestamp).total_seconds() <= self.timeout
         ]
-        self.updated_at = datetime.utcnow()
+        self.updated_at = datetime.now()
 
     def partial_remove(self, message_ids: List[UUID]):
         self.messages = [
             m for m in self.messages if m.message_id not in message_ids
         ]
-        self.updated_at = datetime.utcnow()
+        self.updated_at = datetime.now()
 
     def restore_history(self, messages: List[Message]):
         self.messages = messages
         self.messages.sort(key=lambda m: m.timestamp)
-        self.updated_at = datetime.utcnow()
+        self.updated_at = datetime.now()
         self._enforce_limits()
 
     def _enforce_limits(self):
