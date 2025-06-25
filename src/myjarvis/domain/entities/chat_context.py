@@ -42,8 +42,9 @@ class ChatContext:
                 "Parent ID (parent_message_id) does not exist"
             )
         self.messages.append(message)
-        self.updated_at = datetime.now()
+        self.total_tokens += message.total_tokens
         self._enforce_limits()
+        self.updated_at = datetime.now()
 
     def get_history(
         self, limit: Optional[int] = None, max_tokens: Optional[int] = None
