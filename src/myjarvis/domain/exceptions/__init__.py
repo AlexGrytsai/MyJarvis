@@ -6,6 +6,7 @@ from .domain_exceptions import EmailNotValid
 from .domain_exceptions import InvalidMessageRole
 from .domain_exceptions import LLMProviderAlreadyExistsInUser
 from .domain_exceptions import LLMProviderNotExistsInUser
+from .domain_exceptions import MaxMessagesNotValid
 from .domain_exceptions import MaxTokensNotValid
 from .domain_exceptions import MessageCouldNotBeEmpty
 from .domain_exceptions import MessageMetaDataWrongFormat
@@ -14,6 +15,7 @@ from .domain_exceptions import MessageWithoutId
 from .domain_exceptions import NewEmailSameAsCurrent
 from .domain_exceptions import NewUsernameSameAsCurrent
 from .domain_exceptions import TemperatureNotValid
+from .domain_exceptions import TimeoutNotValid
 from .domain_exceptions import UnavailableAgentName
 from .domain_exceptions import UserIdRequired
 from .domain_exceptions import WrongDatatimeType
@@ -40,4 +42,6 @@ __all__ = [
     "InvalidMessageRole",
     "UserIdRequired",
     "ContextIdInvalidFormat",
+    "MaxMessagesNotValid",
+    "TimeoutNotValid",
 ]

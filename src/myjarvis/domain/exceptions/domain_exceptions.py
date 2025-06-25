@@ -90,6 +90,10 @@ class MessageMetaDataWrongFormat(MessageException):
     """Raised when a metadata's message transmitted in the wrong format."""
 
 
+class MaxMessagesNotValid(DomainException):
+    """Raised when the max messages is not valid."""
+
+
 class InvalidMessageRole(DomainException):
     """Raised when a message role is not valid."""
 
@@ -104,3 +108,7 @@ class UserIdRequired(DomainException):
 
 class ContextIdInvalidFormat(DomainException):
     """Raised when a context ID is not in the correct format."""
+
+
+class TimeoutNotValid(DomainException):
+    """Raised when the timeout is not valid."""
