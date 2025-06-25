@@ -201,18 +201,17 @@ class ChatContext:
             raise ContextIdInvalidFormat(
                 "Context ID (context_id) must be UUID"
             )
-        if not isinstance(self.max_messages, int):
+        if self.max_messages is not None and (
+            not isinstance(self.max_messages, int) or self.max_messages <= 0
+        ):
             raise MaxMessagesNotValid(
                 f"Maximum messages (max_messages) must be positive int "
                 f"or None. Got: {self.max_messages}, "
                 f"type: {type(self.max_messages)}"
             )
-        if self.max_messages <= 0:
-            raise MaxMessagesNotValid(
-                f"Maximum messages (max_messages) must be positive int "
-                f"or None. Got: {self.max_messages}"
-            )
-        if not isinstance(self.max_tokens, int) or self.max_tokens <= 0:
+        if self.max_tokens is not None and (
+            not isinstance(self.max_tokens, int) or self.max_tokens <= 0
+        ):
             raise MaxTokensNotValid(
                 "Maximum tokens (max_tokens) must be positive int or None"
             )
@@ -220,7 +219,7 @@ class ChatContext:
             not isinstance(self.timeout, int) or self.timeout <= 0
         ):
             raise TimeoutNotValid("Timeout must be positive int or None")
-        if not isinstance(self.messages, list):
+        if not isinstance(self.messages, dict):
             raise MessagesListNotValid(
-                f"Messages must be list. Got: {type(self.messages)}"
+                f"Messages must be dict. Got: {type(self.messages)}"
             )
