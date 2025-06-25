@@ -50,12 +50,14 @@ class ChatContext:
         return self
 
     def get_history(
-        self, limit: Optional[int] = None, max_tokens: Optional[int] = None
+        self,
+        limit: Optional[int] = None,
+        max_tokens: Optional[int] = None,
     ) -> List[Message]:
         result = []
         token_count = 0
         for message in reversed(self.messages):
-            token_count += len(message.text)
+            token_count += message.total_tokens
             if (max_tokens and token_count > max_tokens) or (
                 limit and len(result) >= limit
             ):
