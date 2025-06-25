@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from collections import deque
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import List, Optional, Dict, Any, Union, Deque
+from typing import List, Optional, Dict, Any, Union
 from uuid import UUID
 
 from src.myjarvis.domain.exceptions import (
@@ -15,6 +14,7 @@ from src.myjarvis.domain.exceptions import (
     TimeoutNotValid,
     MessagesListNotValid,
     MessageHasInvalidParentId,
+    UnexpectedException,
 )
 from src.myjarvis.domain.value_objects import Message
 
@@ -24,7 +24,7 @@ class ChatContext:
     context_id: UUID
     agent_id: Union[str, UUID]
     user_id: Union[str, UUID]
-    messages: Deque[Message] = field(default_factory=deque)
+    messages: Dict[UUID, Message] = field(default_factory=dict)
     created_at: datetime = field(default_factory=datetime.now)
     updated_at: datetime = field(default_factory=datetime.now)
     timeout: Optional[int] = None
@@ -38,12 +38,13 @@ class ChatContext:
 
     def add_message(self, message: Message) -> ChatContext:
         if message.parent_message_id and all(
-            m.message_id != message.parent_message_id for m in self.messages
+            m.message_id != message.parent_message_id
+            for m in self.messages.values()
         ):
             raise MessageHasInvalidParentId(
                 "Parent ID (parent_message_id) does not exist"
             )
-        self.messages.append(message)
+        self.messages[message.message_id] = message
         self.total_tokens += message.total_tokens
         self._enforce_limits()
         self.updated_at = datetime.now()
@@ -74,26 +75,28 @@ class ChatContext:
     ):
         updated = False
         new_messages = []
-        for m in self.messages:
-            if m.message_id == message_id:
+        for message in self.messages:
+            if message.message_id == message_id:
                 new_m = Message(
-                    message_id=m.message_id,
-                    sender=m.sender,
-                    text=text if text is not None else m.text,
-                    timestamp=m.timestamp,
-                    role=m.role,
-                    parent_message_id=m.parent_message_id,
+                    message_id=message.message_id,
+                    sender=message.sender,
+                    text=text if text is not None else message.text,
+                    timestamp=message.timestamp,
+                    role=message.role,
+                    parent_message_id=message.parent_message_id,
                     attachments=(
                         attachments
                         if attachments is not None
-                        else m.attachments
+                        else message.attachments
                     ),
-                    metadata=metadata if metadata is not None else m.metadata,
+                    metadata=(
+                        metadata if metadata is not None else message.metadata
+                    ),
                 )
                 new_messages.append(new_m)
                 updated = True
             else:
-                new_messages.append(m)
+                new_messages.append(message)
         if not updated:
             raise ValueError("Message not found")
         self.messages = new_messages
@@ -142,8 +145,16 @@ class ChatContext:
 
     def _enforce_max_tokens(self) -> None:
         while self.total_tokens > self.max_tokens:
-            self.total_tokens -= self.messages[0].total_tokens
-            self.messages.popleft()
+            if self.messages:
+                message_id_to_remove = list(self.messages.keys())[0]
+                self.total_tokens -= self.messages[
+                    message_id_to_remove
+                ].total_tokens
+                del self.messages[message_id_to_remove]
+            raise UnexpectedException(
+                f"Total tokens is not empty ({self.total_tokens}), "
+                f"but messages list is empty"
+            )
 
     def _validate(self) -> None:
         if not self.agent_id:
