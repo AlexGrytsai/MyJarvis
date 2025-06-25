@@ -1,4 +1,5 @@
 from .agent_id import AgentId
+from .chat_limits import ChatLimits
 from .email import Email
 from .llm_api_key import LlmApiKey
 from .message import Message
@@ -12,4 +13,5 @@ __all__ = [
     "NodeId",
     "Message",
     "UserId",
+    "ChatLimits",
 ]
