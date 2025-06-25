@@ -24,6 +24,15 @@ class MessageCollection:
     messages: Dict[UUID, Message] = field(default_factory=dict)
     limits: ChatLimits = field(default_factory=ChatLimits)
 
+    def __post_init__(self):
+        messages_with_limits = self._enforce_limits(
+            messages=list(self.messages.values()),
+            limits=self.limits,
+        )
+        object.__setattr__(
+            self, "messages", {m.message_id: m for m in messages_with_limits}
+        )
+
     @property
     def total_tokens(self) -> int:
         """Returns the total number of tokens in the collection."""
@@ -41,14 +50,7 @@ class MessageCollection:
         updated_messages = self.messages.copy()
         updated_messages[message.message_id] = message
 
-        messages_with_limits = self._enforce_limits(
-            messages=list(updated_messages.values()),
-            limits=self.limits,
-        )
-
-        return MessageCollection(
-            {m.message_id: m for m in messages_with_limits}, self.limits
-        )
+        return MessageCollection(updated_messages, self.limits)
 
     def remove_message(self, message_id: UUID) -> MessageCollection:
         """
@@ -83,6 +85,14 @@ class MessageCollection:
                 break
             result.insert(0, message)
         return result
+
+    def restore_history(self, messages: List[Message]) -> MessageCollection:
+        sorted_messages = sorted(messages, key=lambda m: m.timestamp)
+
+        return MessageCollection(
+            {message.message_id: message for message in sorted_messages},
+            self.limits,
+        )
 
     def _enforce_limits(
         self,
