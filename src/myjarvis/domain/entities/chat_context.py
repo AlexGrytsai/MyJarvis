@@ -16,7 +16,11 @@ from src.myjarvis.domain.exceptions import (
     MessageHasInvalidParentId,
     MessageNotFound,
 )
-from src.myjarvis.domain.value_objects import Message, ChatLimits
+from src.myjarvis.domain.value_objects import (
+    Message,
+    ChatLimits,
+    MessageCollection,
+)
 
 
 @dataclass
@@ -24,11 +28,10 @@ class ChatContext:
     context_id: UUID
     agent_id: UUID
     user_id: UUID
-    messages: Dict[UUID, Message] = field(default_factory=dict)
+    limits: ChatLimits = field(default_factory=ChatLimits)
+    message_collection: MessageCollection = field(init=False)
     created_at: datetime = field(default_factory=datetime.now)
     updated_at: datetime = field(default_factory=datetime.now)
-    limits: ChatLimits = field(default_factory=ChatLimits)
-    total_tokens: int = 0
 
     def __post_init__(self):
         self._validate()
