@@ -109,9 +109,11 @@ class ChatContext:
         self.updated_at = datetime.now()
 
     def remove_message(self, message_id: UUID):
-        self.messages = [
-            m for m in self.messages if m.message_id != message_id
-        ]
+        if not self.messages.get(message_id):
+            raise MessageNotFound(f"Message with ID: '{message_id}' not found")
+        self.total_tokens -= self.messages[message_id].total_tokens
+        del self.messages[message_id]
+
         self.updated_at = datetime.now()
 
     def clear_history(self):
