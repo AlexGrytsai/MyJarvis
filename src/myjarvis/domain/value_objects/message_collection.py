@@ -65,7 +65,7 @@ class MessageCollection:
 
     def get_history(
         self,
-        limit: Optional[int] = None,
+        max_messages: Optional[int] = None,
         max_tokens: Optional[int] = None,
     ) -> List[Message]:
         """
@@ -78,7 +78,7 @@ class MessageCollection:
         for message in reversed(self.messages.values()):
             token_count += message.total_tokens
             if (max_tokens and token_count > max_tokens) or (
-                limit and len(result) >= limit
+                max_messages and len(result) >= max_messages
             ):
                 break
             result.insert(0, message)
