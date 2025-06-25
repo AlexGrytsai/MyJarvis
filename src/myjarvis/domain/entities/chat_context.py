@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import List, Optional, Dict, Any, Union, Tuple
+from typing import List, Optional, Dict, Any, Tuple
 from uuid import UUID
 
 from src.myjarvis.domain.exceptions import (
@@ -16,7 +16,7 @@ from src.myjarvis.domain.exceptions import (
     MessageHasInvalidParentId,
     MessageNotFound,
 )
-from src.myjarvis.domain.value_objects import Message
+from src.myjarvis.domain.value_objects import Message, ChatLimits
 
 
 @dataclass
@@ -27,14 +27,33 @@ class ChatContext:
     messages: Dict[UUID, Message] = field(default_factory=dict)
     created_at: datetime = field(default_factory=datetime.now)
     updated_at: datetime = field(default_factory=datetime.now)
-    timeout: Optional[int] = None
-    max_messages: Optional[int] = None
-    max_tokens: Optional[int] = None
+    limits: ChatLimits = field(default_factory=ChatLimits)
     total_tokens: int = 0
 
     def __post_init__(self):
         self._validate()
         self._enforce_limits()
+
+    @classmethod
+    def create_with_limits(
+        cls,
+        context_id: UUID,
+        agent_id: UUID,
+        user_id: UUID,
+        max_messages: Optional[int] = None,
+        max_tokens: Optional[int] = None,
+        timeout: Optional[int] = None,
+    ) -> ChatContext:
+        return cls(
+            context_id=context_id,
+            agent_id=agent_id,
+            user_id=user_id,
+            limits=ChatLimits(
+                max_messages=max_messages,
+                max_tokens=max_tokens,
+                timeout=timeout,
+            ),
+        )
 
     def add_message(self, message: Message) -> ChatContext:
         if message.parent_message_id and all(
