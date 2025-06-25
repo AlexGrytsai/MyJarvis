@@ -87,38 +87,41 @@ class ChatContext:
         metadata: Optional[Dict[str, Any]] = None,
         total_tokens: Optional[int] = None,
     ) -> Message:
-        message_for_update = self.messages.get(message_id)
-        if not message_for_update:
+        if message_id not in self.message_collection.messages:
             raise MessageNotFound(f"Message with ID: '{message_id}' not found")
 
+        current_message = self.message_collection.messages[message_id]
+
         updated_message = Message(
-            message_id=message_for_update.message_id,
-            sender=message_for_update.sender,
-            text=text if text is not None else message_for_update.text,
-            timestamp=message_for_update.timestamp,
-            role=message_for_update.role,
-            parent_message_id=message_for_update.parent_message_id,
+            message_id=current_message.message_id,
+            sender=current_message.sender,
+            text=text if text is not None else current_message.text,
+            timestamp=current_message.timestamp,
+            role=current_message.role,
+            parent_message_id=current_message.parent_message_id,
             attachments=(
                 attachments
                 if attachments is not None
-                else message_for_update.attachments
+                else current_message.attachments
             ),
             metadata=(
-                metadata
-                if metadata is not None
-                else message_for_update.metadata
+                metadata if metadata is not None else current_message.metadata
             ),
             total_tokens=(
                 total_tokens
                 if total_tokens is not None
-                else message_for_update.total_tokens
+                else current_message.total_tokens
             ),
         )
-        self.messages[message_id] = updated_message
 
-        self.updated_at = datetime.now()
+        updated_messages = self.message_collection.messages.copy()
+        updated_messages[updated_message.message_id] = updated_message
 
-        return updated_message
+        return self._create_updated_context(
+            message_collection=MessageCollection(
+                updated_messages, self.message_collection.limits
+            )
+        ).message_collection.messages[message_id]
 
     def remove_message(self, message_id: UUID) -> bool:
         if not self.messages.get(message_id):
