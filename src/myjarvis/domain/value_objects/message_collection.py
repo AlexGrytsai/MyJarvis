@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Dict, List, Optional, Tuple
 from uuid import UUID
 
@@ -113,6 +114,21 @@ class MessageCollection:
             {message.message_id: message for message in sorted_messages},
             self.limits,
         )
+
+    def remove_expired(
+        self, timeout: Optional[int]
+    ) -> Tuple[MessageCollection, Optional[List[str]]]:
+        if not timeout:
+            return self, None
+
+        now = datetime.now()
+        ids_to_remove = [
+            message_id
+            for message_id, message in self.messages.items()
+            if (now - message.timestamp).total_seconds() > timeout
+        ]
+
+        return self.partial_remove(ids_to_remove)
 
     def _enforce_limits(
         self,
