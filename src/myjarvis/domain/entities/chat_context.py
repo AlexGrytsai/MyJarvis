@@ -29,13 +29,14 @@ class ChatContext:
     agent_id: UUID
     user_id: UUID
     limits: ChatLimits = field(default_factory=ChatLimits)
-    message_collection: MessageCollection = field(init=False)
+    message_collection: MessageCollection = field(
+        default_factory=MessageCollection
+    )
     created_at: datetime = field(default_factory=datetime.now)
     updated_at: datetime = field(default_factory=datetime.now)
 
     def __post_init__(self):
         self._validate()
-        self._enforce_limits()
 
     @classmethod
     def create_with_limits(
@@ -47,15 +48,17 @@ class ChatContext:
         max_tokens: Optional[int] = None,
         timeout: Optional[int] = None,
     ) -> ChatContext:
+        limits = ChatLimits(
+            max_messages=max_messages,
+            max_tokens=max_tokens,
+            timeout=timeout,
+        )
         return cls(
             context_id=context_id,
             agent_id=agent_id,
             user_id=user_id,
-            limits=ChatLimits(
-                max_messages=max_messages,
-                max_tokens=max_tokens,
-                timeout=timeout,
-            ),
+            limits=limits,
+            message_collection=MessageCollection(limits=limits),
         )
 
     def add_message(self, message: Message) -> ChatContext:
@@ -68,7 +71,6 @@ class ChatContext:
             )
         self.messages[message.message_id] = message
         self.total_tokens += message.total_tokens
-        self._enforce_limits()
         self.updated_at = datetime.now()
         return self
 
@@ -124,8 +126,6 @@ class ChatContext:
             ),
         )
         self.messages[message_id] = updated_message
-
-        self._enforce_max_tokens()
 
         self.updated_at = datetime.now()
 
@@ -183,44 +183,9 @@ class ChatContext:
             message.message_id: message for message in sorted_messages
         }
 
-        self._enforce_limits()
         self.updated_at = datetime.now()
 
         return self.messages
-
-    def _enforce_limits(self) -> None:
-        self._enforce_max_messages()
-        self._enforce_max_tokens()
-
-    def _enforce_max_messages(self) -> None:
-        if len(self.messages) > self.max_messages:
-            updated_messages = list(self.messages.values())[
-                -self.max_messages :
-            ]
-            self.messages = {m.message_id: m for m in updated_messages}
-            self.total_tokens = sum(m.total_tokens for m in updated_messages)
-
-    def _enforce_max_tokens(self) -> None:
-        if self.max_tokens is None or self.total_tokens <= self.max_tokens:
-            return None
-
-        sorted_messages = sorted(
-            self.messages.values(), key=lambda m: m.timestamp, reverse=True
-        )
-
-        kept_messages = {}
-        accumulated_tokens = 0
-
-        for message in sorted_messages:
-            if accumulated_tokens + message.total_tokens > self.max_tokens:
-                break
-
-            kept_messages[message.message_id] = message
-            accumulated_tokens += message.total_tokens
-        self.messages = kept_messages
-        self.total_tokens = accumulated_tokens
-
-        return None
 
     def update_limits(
         self,
