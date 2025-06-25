@@ -35,6 +35,7 @@ class Message:
     attachments: List[Any] = field(default_factory=list)
     metadata: Dict[str, Any] = field(default_factory=dict)
     max_text_length: Optional[int] = None
+    total_tokens: int = 0
 
     def __post_init__(self):
         if not isinstance(self.message_id, UUID):
