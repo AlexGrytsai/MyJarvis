@@ -1,6 +1,7 @@
 from .domain_exceptions import AgentIdRequired
 from .domain_exceptions import AgentNotFoundInUser
 from .domain_exceptions import AttachmentsToMessageInWrongFormat
+from .domain_exceptions import ContextIdInvalidFormat
 from .domain_exceptions import EmailNotValid
 from .domain_exceptions import InvalidMessageRole
 from .domain_exceptions import LLMProviderAlreadyExistsInUser
@@ -38,4 +39,5 @@ __all__ = [
     "WrongDatatimeType",
     "InvalidMessageRole",
     "UserIdRequired",
+    "ContextIdInvalidFormat",
 ]

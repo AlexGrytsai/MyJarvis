@@ -100,3 +100,7 @@ class AgentIdRequired(DomainException):
 
 class UserIdRequired(DomainException):
     """Raised when a user ID is required, but not provided."""
+
+
+class ContextIdInvalidFormat(DomainException):
+    """Raised when a context ID is not in the correct format."""
