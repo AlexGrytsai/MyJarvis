@@ -177,16 +177,16 @@ class ChatContext:
 
     def _enforce_max_tokens(self) -> None:
         while self.total_tokens > self.max_tokens:
-            if self.messages:
-                message_id_to_remove = list(self.messages.keys())[0]
-                self.total_tokens -= self.messages[
-                    message_id_to_remove
-                ].total_tokens
-                del self.messages[message_id_to_remove]
-            raise UnexpectedException(
-                f"Total tokens is not empty ({self.total_tokens}), "
-                f"but messages list is empty"
-            )
+            if not self.messages:
+                raise UnexpectedException(
+                    f"Total tokens is not empty ({self.total_tokens}), "
+                    f"but messages list is empty"
+                )
+            message_id_to_remove = list(self.messages.keys())[0]
+            self.total_tokens -= self.messages[
+                message_id_to_remove
+            ].total_tokens
+            del self.messages[message_id_to_remove]
 
     def _validate(self) -> None:
         if not self.agent_id:
