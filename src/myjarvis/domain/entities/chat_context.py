@@ -54,8 +54,6 @@ class ChatContext:
             m.message_id != message.parent_message_id for m in self.messages
         ):
             raise ValueError("parent_message_id does not exist")
-        if len(message.text) > 4096:
-            raise ValueError("Message text too long")
         self.messages.append(message)
         self.messages.sort(key=lambda m: m.timestamp)
         self.updated_at = datetime.utcnow()
