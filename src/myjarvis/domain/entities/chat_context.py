@@ -173,7 +173,11 @@ class ChatContext:
 
     def _enforce_max_messages(self) -> None:
         if len(self.messages) > self.max_messages:
-            self.messages = self.messages[-self.max_messages :]
+            updated_messages = list(self.messages.values())[
+                -self.max_messages :
+            ]
+            self.messages = {m.message_id: m for m in updated_messages}
+            self.total_tokens = sum(m.total_tokens for m in updated_messages)
 
     def _enforce_max_tokens(self) -> None:
         while self.total_tokens > self.max_tokens:
