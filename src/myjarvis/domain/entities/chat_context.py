@@ -136,14 +136,9 @@ class ChatContext:
             self.messages = self.messages[-self.max_messages :]
 
     def _enforce_max_tokens(self):
-        token_sum = 0
-        result = []
-        for message in reversed(self.messages):
-            token_sum += message.total_tokens
-            if token_sum > self.max_tokens:
-                break
-            result.insert(0, message)
-        self.messages = result
+        while self.total_tokens > self.max_tokens:
+            self.total_tokens -= self.messages[0].total_tokens
+            self.messages.popleft()
 
     def _validate(self):
         if not self.agent_id:
