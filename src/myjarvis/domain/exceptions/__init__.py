@@ -1,3 +1,4 @@
+from .domain_exceptions import AgentIdRequired
 from .domain_exceptions import AgentNotFoundInUser
 from .domain_exceptions import AttachmentsToMessageInWrongFormat
 from .domain_exceptions import EmailNotValid
@@ -18,6 +19,7 @@ from .domain_exceptions import WrongIdType
 
 __all__ = [
     "AgentNotFoundInUser",
+    "AgentIdRequired",
     "EmailNotValid",
     "MaxTokensNotValid",
     "NewEmailSameAsCurrent",

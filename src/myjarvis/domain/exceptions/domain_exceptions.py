@@ -92,3 +92,7 @@ class MessageMetaDataWrongFormat(MessageException):
 
 class InvalidMessageRole(DomainException):
     """Raised when a message role is not valid."""
+
+
+class AgentIdRequired(DomainException):
+    """Raised when an agent ID is required, but not provided."""
