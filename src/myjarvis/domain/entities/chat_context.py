@@ -156,11 +156,16 @@ class ChatContext:
 
         return self.messages, errors
 
-    def restore_history(self, messages: List[Message]):
-        self.messages = messages
-        self.messages.sort(key=lambda m: m.timestamp)
-        self.updated_at = datetime.now()
+    def restore_history(self, messages: List[Message]) -> Dict[UUID, Message]:
+        sorted_messages = sorted(messages, key=lambda m: m.timestamp)
+        self.messages = {
+            message.message_id: message for message in sorted_messages
+        }
+
         self._enforce_limits()
+        self.updated_at = datetime.now()
+
+        return self.messages
 
     def _enforce_limits(self) -> None:
         self._enforce_max_messages()
