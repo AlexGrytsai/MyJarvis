@@ -74,7 +74,7 @@ class ChatContext:
         attachments: Optional[List[Any]] = None,
         metadata: Optional[Dict[str, Any]] = None,
         total_tokens: Optional[int] = None,
-    ):
+    ) -> Message:
         message_for_update = self.messages.get(message_id)
         if not message_for_update:
             raise MessageNotFound(f"Message with ID: '{message_id}' not found")
@@ -107,6 +107,8 @@ class ChatContext:
         self._enforce_max_tokens()
 
         self.updated_at = datetime.now()
+
+        return updated_message
 
     def remove_message(self, message_id: UUID):
         if not self.messages.get(message_id):
