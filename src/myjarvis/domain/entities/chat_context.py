@@ -72,19 +72,12 @@ class ChatContext:
 
     def get_history(
         self,
-        limit: Optional[int] = None,
+        max_messages: Optional[int] = None,
         max_tokens: Optional[int] = None,
     ) -> List[Message]:
-        result = []
-        token_count = 0
-        for message in reversed(self.messages.values()):
-            token_count += message.total_tokens
-            if (max_tokens and token_count > max_tokens) or (
-                limit and len(result) >= limit
-            ):
-                break
-            result.insert(0, message)
-        return result
+        return self.message_collection.get_history(
+            max_messages=max_messages, max_tokens=max_tokens
+        )
 
     def update_message(
         self,
