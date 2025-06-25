@@ -206,7 +206,6 @@ class ChatContext:
         )
 
         return self._create_updated_context(
-            limits=new_limits,
             message_collection=MessageCollection(
                 self.message_collection.messages, new_limits
             ),
@@ -217,8 +216,11 @@ class ChatContext:
             context_id=self.context_id,
             agent_id=self.agent_id,
             user_id=self.user_id,
-            limits=kwargs.get("limits", self.limits),
             created_at=self.created_at,
+            message_collection=kwargs.get(
+                "message_collection", self.message_collection
+            ),
+            updated_at=datetime.now(),
         )
 
     def _validate_required_fields(self) -> None:
