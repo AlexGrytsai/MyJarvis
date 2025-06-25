@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import List, Optional, Dict, Any, Union
+from typing import List, Optional, Dict, Any, Union, Tuple
 from uuid import UUID
 
 from src.myjarvis.domain.exceptions import (
@@ -125,22 +125,36 @@ class ChatContext:
         self.total_tokens = 0
         self.updated_at = datetime.now()
 
-    def remove_expired(self):
+    def remove_expired(self) -> Tuple[Dict[UUID, Message], Optional[List]]:
         if not self.timeout:
-            return
+            return self.messages, None
         now = datetime.now()
-        self.messages = [
-            m
-            for m in self.messages
-            if (now - m.timestamp).total_seconds() <= self.timeout
+
+        ids_to_remove = [
+            message_id
+            for message_id in self.messages.keys()
+            if (now - self.messages[message_id].timestamp).total_seconds()
+            > self.timeout
         ]
+
+        _, errors = self.partial_remove(ids_to_remove)
         self.updated_at = datetime.now()
 
-    def partial_remove(self, message_ids: List[UUID]):
-        self.messages = [
-            m for m in self.messages if m.message_id not in message_ids
-        ]
+        return self.messages, errors
+
+    def partial_remove(
+        self,
+        message_ids: List[UUID],
+    ) -> Tuple[Dict[UUID, Message], Optional[List]]:
+        errors = []
+        for message_id in message_ids:
+            try:
+                self.remove_message(message_id)
+            except MessageNotFound:
+                errors.append(f"Message with ID: '{message_id}' not found")
         self.updated_at = datetime.now()
+
+        return self.messages, errors
 
     def restore_history(self, messages: List[Message]):
         self.messages = messages
