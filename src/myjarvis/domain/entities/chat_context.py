@@ -14,7 +14,6 @@ from src.myjarvis.domain.exceptions import (
     TimeoutNotValid,
     MessagesListNotValid,
     MessageHasInvalidParentId,
-    UnexpectedException,
     MessageNotFound,
 )
 from src.myjarvis.domain.value_objects import Message
@@ -180,17 +179,26 @@ class ChatContext:
             self.total_tokens = sum(m.total_tokens for m in updated_messages)
 
     def _enforce_max_tokens(self) -> None:
-        while self.total_tokens > self.max_tokens:
-            if not self.messages:
-                raise UnexpectedException(
-                    f"Total tokens is not empty ({self.total_tokens}), "
-                    f"but messages list is empty"
-                )
-            message_id_to_remove = list(self.messages.keys())[0]
-            self.total_tokens -= self.messages[
-                message_id_to_remove
-            ].total_tokens
-            del self.messages[message_id_to_remove]
+        if self.max_tokens is None or self.total_tokens <= self.max_tokens:
+            return None
+
+        sorted_messages = sorted(
+            self.messages.values(), key=lambda m: m.timestamp, reverse=True
+        )
+
+        kept_messages = {}
+        accumulated_tokens = 0
+
+        for message in sorted_messages:
+            if accumulated_tokens + message.total_tokens > self.max_tokens:
+                break
+
+            kept_messages[message.message_id] = message
+            accumulated_tokens += message.total_tokens
+        self.messages = kept_messages
+        self.total_tokens = accumulated_tokens
+
+        return None
 
     def _validate(self) -> None:
         if not self.agent_id:
