@@ -77,7 +77,7 @@ class ChatContext:
     ):
         message_for_update = self.messages.get(message_id)
         if not message_for_update:
-            raise MessageNotFound("Message not found")
+            raise MessageNotFound(f"Message with ID: '{message_id}' not found")
 
         updated_message = Message(
             message_id=message_for_update.message_id,
