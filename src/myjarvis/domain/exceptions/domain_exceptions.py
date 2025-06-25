@@ -120,3 +120,7 @@ class TimeoutNotValid(DomainException):
 
 class MessagesListNotValid(DomainException):
     """Raised when the messages list is not valid."""
+
+
+class UnexpectedException(DomainException):
+    """Raised when an unexpected exception is raised."""
