@@ -63,10 +63,12 @@ class ChatContext:
             raise MessageHasInvalidParentId(
                 "Parent ID (parent_message_id) does not exist"
             )
-        self.messages[message.message_id] = message
-        self.total_tokens += message.total_tokens
-        self.updated_at = datetime.now()
-        return self
+        updated_message_collection = self.message_collection.add_message(
+            message
+        )
+        return self._create_updated_context(
+            message_collection=updated_message_collection
+        )
 
     def get_history(
         self,
