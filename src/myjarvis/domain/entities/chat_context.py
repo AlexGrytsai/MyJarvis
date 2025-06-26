@@ -61,7 +61,7 @@ class ChatContext:
     def add_message(self, message: Message) -> ChatContext:
         if message.parent_message_id and all(
             m.message_id != message.parent_message_id
-            for m in self.messages.values()
+            for m in self.message_collection.messages.values()
         ):
             raise MessageHasInvalidParentId(
                 "Parent ID (parent_message_id) does not exist"
@@ -137,7 +137,7 @@ class ChatContext:
         )
 
     def clear_history(self):
-        self.messages.clear()
+        self.message_collection.clear_history()
         self.updated_at = datetime.now()
 
     def remove_expired(self) -> Tuple[Dict[UUID, Message], Optional[List]]:
