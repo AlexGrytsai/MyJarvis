@@ -127,7 +127,7 @@ class ChatContext:
         updated_messages[updated_message.message_id] = updated_message
 
         return self._create_updated_context(
-            message_collection=MessageCollection(updated_messages)
+            message_collection=self.message_collection.create(updated_messages)
         ).message_collection.messages[message_id]
 
     def remove_message(self, message_id: UUID) -> ChatContext:
