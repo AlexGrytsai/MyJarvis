@@ -155,7 +155,7 @@ class ChatContext:
         _, errors = self.partial_remove(ids_to_remove)
         self.updated_at = datetime.now()
 
-        return self.messages, errors
+        return self.message_collection.messages, errors
 
     def partial_remove(
         self,
@@ -169,7 +169,7 @@ class ChatContext:
                 errors.append(f"Message with ID: '{message_id}' not found")
         self.updated_at = datetime.now()
 
-        return self.messages, errors
+        return self.message_collection.messages, errors
 
     def restore_history(self, messages: List[Message]) -> Dict[UUID, Message]:
         sorted_messages = sorted(messages, key=lambda m: m.timestamp)
