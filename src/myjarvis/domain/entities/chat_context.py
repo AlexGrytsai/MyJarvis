@@ -70,14 +70,7 @@ class ChatContext:
         messages = list(self.message_collection.messages.values())
         messages.append(message)
 
-        updated_message_collection = self.message_collection.create(
-            self.chat_limits_service.apply_limits(
-                messages=messages, limits=self.limits
-            )
-        )
-        return self._create_updated_context(
-            message_collection=updated_message_collection
-        )
+        return self._create_updated_context(messages=messages)
 
     def get_history(
         self,
@@ -127,7 +120,7 @@ class ChatContext:
         updated_messages[updated_message.message_id] = updated_message
 
         return self._create_updated_context(
-            message_collection=self.message_collection.create(updated_messages)
+            messages=list(updated_messages.values())
         ).message_collection.messages[message_id]
 
     def remove_message(self, message_id: UUID) -> ChatContext:
@@ -178,11 +171,11 @@ class ChatContext:
 
     def restore_history(self, messages: List[Message]) -> ChatContext:
         sorted_messages = sorted(messages, key=lambda m: m.timestamp)
-        self.message_collection = self.message_collection.restore_history(
-            sorted_messages
+        self._create_updated_context(
+            message_collection=self.message_collection.restore_history(
+                sorted_messages
+            )
         )
-
-        self.updated_at = datetime.now()
 
         return self
 
@@ -214,7 +207,13 @@ class ChatContext:
         self,
         message_collection: Optional[MessageCollection] = None,
         limits: Optional[ChatLimits] = None,
+        messages: Optional[List[Message]] = None,
     ) -> ChatContext:
+        if messages and not message_collection:
+            check_limits = self.chat_limits_service.apply_limits(
+                messages=messages, limits=self.limits
+            )
+            message_collection = self.message_collection.create(check_limits)
         return ChatContext(
             context_id=self.context_id,
             agent_id=self.agent_id,
