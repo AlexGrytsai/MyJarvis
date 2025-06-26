@@ -11,7 +11,10 @@ from src.myjarvis.domain.exceptions import (
     MessageHasInvalidParentId,
     MessageNotFound,
 )
-from src.myjarvis.domain.services import ChatContextLimitsService
+from src.myjarvis.domain.services import (
+    ChatContextLimitsService,
+    MessageExpirationService,
+)
 from src.myjarvis.domain.value_objects import (
     Message,
     ChatLimits,
@@ -32,6 +35,9 @@ class ChatContext:
     limits: Optional[ChatLimits] = None
     chat_limits_service: ChatContextLimitsService = field(
         default_factory=ChatContextLimitsService
+    )
+    message_expiration_service: MessageExpirationService = field(
+        default_factory=MessageExpirationService
     )
     created_at: datetime = field(default_factory=datetime.now)
     updated_at: datetime = field(default_factory=datetime.now)
@@ -141,24 +147,13 @@ class ChatContext:
         if not self.limits.timeout:
             return self, None
 
-        self.message_collection.message_expiration_service.remove_expired_messages(
-            self.limits.timeout
+        message_collection, errors = (
+            self.message_expiration_service.remove_expired_messages(
+                messages_collection=self.message_collection,
+                timeout=self.limits.timeout,
+            )
         )
-        now = datetime.now()
-
-        ids_to_remove = [
-            message_id
-            for message_id in self.message_collection.messages.keys()
-            if (
-                now - self.message_collection.messages[message_id].timestamp
-            ).total_seconds()
-            > self.limits.timeout
-        ]
-
-        chat_context, errors = self.partial_remove(ids_to_remove)
-        self._create_updated_context(
-            message_collection=chat_context.message_collection
-        )
+        self._create_updated_context(message_collection=message_collection)
 
         return self, errors
 
