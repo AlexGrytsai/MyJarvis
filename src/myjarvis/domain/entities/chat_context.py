@@ -191,24 +191,18 @@ class ChatContext:
             max_messages=(
                 max_messages
                 if max_messages is not None
-                else self.message_collection.limits.max_messages
+                else self.limits.max_messages
             ),
             max_tokens=(
                 max_tokens
                 if max_tokens is not None
-                else self.message_collection.limits.max_tokens
+                else self.limits.max_tokens
             ),
-            timeout=(
-                timeout
-                if timeout is not None
-                else self.message_collection.limits.timeout
-            ),
+            timeout=(timeout if timeout is not None else self.limits.timeout),
         )
 
         return self._create_updated_context(
-            message_collection=MessageCollection(
-                self.message_collection.messages, new_limits
-            ),
+            limits=new_limits,
         )
 
     def _create_updated_context(self, **kwargs) -> ChatContext:
