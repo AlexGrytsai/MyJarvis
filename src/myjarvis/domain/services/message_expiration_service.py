@@ -1,39 +1,65 @@
 from datetime import datetime
-from typing import Tuple, Optional, List, TypeAlias
+from typing import Callable, Protocol
 
 from src.myjarvis.domain.value_objects import MessageCollection, Message
 
-ErrorsMessages: TypeAlias = Optional[List[str]]
+
+class ExpirationStrategy(Protocol):
+    """
+    Protocol for message expiration strategy.
+    """
+
+    def is_expired(
+        self, message: Message, now: datetime, timeout: int
+    ) -> bool: ...
+
+
+class DefaultExpirationStrategy:
+    """
+    Default strategy for checking if a message is expired.
+    """
+
+    @staticmethod
+    def is_expired(message: Message, now: datetime, timeout: int) -> bool:
+        return (now - message.timestamp).total_seconds() > timeout
 
 
 class MessageExpirationService:
     """
-    This service is responsible for removing expired messages from
-    a collection.
-
-    It defines a domain logic for checking if a message is expired based
-    on its timestamp and a given timeout value. The expiration check is done
-    by comparing the difference between the current time and the message's
-    timestamp with the given timeout value.
+    Service for removing expired messages from a collection.
+    Implements time provider and expiration strategy for flexibility and
+    testability.
     """
+
+    def __init__(
+        self,
+        now_provider: Callable[[], datetime] = datetime.now,
+        expiration_strategy: ExpirationStrategy = DefaultExpirationStrategy(),
+    ):
+        """
+        :param now_provider: Function to get the current datetime (for testability)
+        :param expiration_strategy: Strategy for checking message expiration
+        """
+        self._now_provider = now_provider
+        self._expiration_strategy = expiration_strategy
 
     def remove_expired_messages(
         self, messages_collection: MessageCollection, timeout: int
-    ) -> Tuple[MessageCollection, ErrorsMessages]:
+    ) -> MessageCollection:
         """
-        Removes expired messages from the collection and returns a new
+        Removes expired messages from the collection and returns a new collection.
+        :param messages_collection: Collection of messages
+        :param timeout: Timeout in seconds
+        :return: New MessageCollection without expired messages
         """
-        if not timeout:
-            return messages_collection, None
+        if not timeout or timeout <= 0:
+            return messages_collection
 
+        now = self._now_provider()
         ids_to_remove = [
             message_id
             for message_id, message in messages_collection.messages.items()
-            if self._is_message_expired(message, timeout)
+            if self._expiration_strategy.is_expired(message, now, timeout)
         ]
 
         return messages_collection.partial_remove(ids_to_remove)
-
-    @staticmethod
-    def _is_message_expired(message: Message, timeout: int) -> bool:
-        return (datetime.now() - message.timestamp).total_seconds() > timeout
