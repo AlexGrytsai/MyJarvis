@@ -23,6 +23,24 @@ class MessageCollection:
         """Returns the total number of messages in the collection."""
         return len(self.messages)
 
+    @classmethod
+    def create(
+        cls, messages: Optional[List[Message]] = None
+    ) -> MessageCollection:
+        """
+        Creates a new MessageCollection instance.
+
+        Args:
+            messages: Optional list of messages to create the collection from.
+                      If not provided, an empty collection will be created.
+
+        Returns:
+            MessageCollection instance.
+        """
+        return MessageCollection(
+            {message.message_id: message for message in messages} or {}
+        )
+
     def add_message(self, message: Message) -> MessageCollection:
         """
         Adds a message to the collection and returns a new MessageCollection
