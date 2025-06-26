@@ -137,14 +137,14 @@ class ChatContext:
             )
         )
 
-    def clear_history(self):
-        self._create_updated_context(
+    def clear_history(self) -> ChatContext:
+        return self._create_updated_context(
             message_collection=self.message_collection.clear_history()
         )
 
-    def remove_expired(self) -> Tuple[Dict[UUID, Message], Optional[List]]:
+    def remove_expired(self) -> Tuple[ChatContext, Optional[List]]:
         if not self.limits.timeout:
-            return self.message_collection.messages, None
+            return self, None
         now = datetime.now()
 
         ids_to_remove = [
@@ -156,26 +156,27 @@ class ChatContext:
             > self.limits.timeout
         ]
 
-        _, errors = self.partial_remove(ids_to_remove)
-        self.updated_at = datetime.now()
+        chat_context, errors = self.partial_remove(ids_to_remove)
+        self._create_updated_context(
+            message_collection=chat_context.message_collection
+        )
 
-        return self.message_collection.messages, errors
+        return self, errors
 
     def partial_remove(
         self,
         message_ids: List[UUID],
-    ) -> Tuple[Dict[UUID, Message], Optional[List]]:
+    ) -> Tuple[ChatContext, Optional[List]]:
         errors = []
         for message_id in message_ids:
             try:
                 self.remove_message(message_id)
             except MessageNotFound:
                 errors.append(f"Message with ID: '{message_id}' not found")
-        self.updated_at = datetime.now()
 
-        return self.message_collection.messages, errors
+        return self, errors
 
-    def restore_history(self, messages: List[Message]) -> Dict[UUID, Message]:
+    def restore_history(self, messages: List[Message]) -> ChatContext:
         sorted_messages = sorted(messages, key=lambda m: m.timestamp)
         self.message_collection = self.message_collection.restore_history(
             sorted_messages
@@ -183,7 +184,7 @@ class ChatContext:
 
         self.updated_at = datetime.now()
 
-        return self.message_collection.messages
+        return self
 
     def update_limits(
         self,
@@ -209,16 +210,18 @@ class ChatContext:
             limits=new_limits,
         )
 
-    def _create_updated_context(self, **kwargs) -> ChatContext:
+    def _create_updated_context(
+        self,
+        message_collection: Optional[MessageCollection] = None,
+        limits: Optional[ChatLimits] = None,
+    ) -> ChatContext:
         return ChatContext(
             context_id=self.context_id,
             agent_id=self.agent_id,
             user_id=self.user_id,
             created_at=self.created_at,
-            limits=kwargs.get("limits", self.limits),
-            message_collection=kwargs.get(
-                "message_collection", self.message_collection
-            ),
+            limits=limits or self.limits,
+            message_collection=message_collection or self.message_collection,
             updated_at=datetime.now(),
         )
 
