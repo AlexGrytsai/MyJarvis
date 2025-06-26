@@ -11,7 +11,7 @@ from src.myjarvis.domain.exceptions import (
     MessageHasInvalidParentId,
     MessageNotFound,
 )
-from src.myjarvis.domain.services import ChatLimitsService
+from src.myjarvis.domain.services import ChatContextLimitsService
 from src.myjarvis.domain.value_objects import (
     Message,
     ChatLimits,
@@ -28,8 +28,8 @@ class ChatContext:
         default_factory=MessageCollection
     )
     limits: Optional[ChatLimits] = None
-    chat_limits_service: ChatLimitsService = field(
-        default_factory=ChatLimitsService
+    chat_limits_service: ChatContextLimitsService = field(
+        default_factory=ChatContextLimitsService
     )
     created_at: datetime = field(default_factory=datetime.now)
     updated_at: datetime = field(default_factory=datetime.now)
@@ -67,11 +67,14 @@ class ChatContext:
                 "Parent ID (parent_message_id) does not exist"
             )
 
-        existing_messages = list(self.message_collection.messages.values())
-        existing_messages.append(message)
+        messages = list(self.message_collection.messages.values())
+        messages.append(message)
 
-        updated_message_collection = self.message_collection.add_message(
-            message
+        messages_after_apply_limits = self.chat_limits_service.apply_limits(
+            messages=messages, limits=self.limits
+        )
+        updated_message_collection = self.message_collection.create(
+            messages_after_apply_limits
         )
         return self._create_updated_context(
             message_collection=updated_message_collection
