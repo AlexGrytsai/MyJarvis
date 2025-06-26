@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import List, Optional, Dict, Any, Tuple
+from typing import List, Optional, Dict, Any, Tuple, TypeAlias
 from uuid import UUID
 
 from src.myjarvis.domain.exceptions import (
@@ -17,6 +17,8 @@ from src.myjarvis.domain.value_objects import (
     ChatLimits,
     MessageCollection,
 )
+
+ErrorsMessages: TypeAlias = Optional[List[str]]
 
 
 @dataclass
@@ -135,9 +137,13 @@ class ChatContext:
             message_collection=self.message_collection.clear_history()
         )
 
-    def remove_expired(self) -> Tuple[ChatContext, Optional[List]]:
+    def remove_expired(self) -> Tuple[ChatContext, ErrorsMessages]:
         if not self.limits.timeout:
             return self, None
+
+        self.message_collection.message_expiration_service.remove_expired_messages(
+            self.limits.timeout
+        )
         now = datetime.now()
 
         ids_to_remove = [
@@ -159,7 +165,7 @@ class ChatContext:
     def partial_remove(
         self,
         message_ids: List[UUID],
-    ) -> Tuple[ChatContext, Optional[List]]:
+    ) -> Tuple[ChatContext, ErrorsMessages]:
         errors = []
         for message_id in message_ids:
             try:
