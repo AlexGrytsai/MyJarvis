@@ -127,9 +127,7 @@ class ChatContext:
         updated_messages[updated_message.message_id] = updated_message
 
         return self._create_updated_context(
-            message_collection=MessageCollection(
-                updated_messages, self.message_collection.limits
-            )
+            message_collection=MessageCollection(updated_messages)
         ).message_collection.messages[message_id]
 
     def remove_message(self, message_id: UUID) -> ChatContext:
@@ -140,7 +138,6 @@ class ChatContext:
 
     def clear_history(self):
         self.messages.clear()
-        self.total_tokens = 0
         self.updated_at = datetime.now()
 
     def remove_expired(self) -> Tuple[Dict[UUID, Message], Optional[List]]:
