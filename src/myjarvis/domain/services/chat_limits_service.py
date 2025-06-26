@@ -82,4 +82,4 @@ class ChatContextLimitsService:
             kept_messages.append(message)
             accumulated_tokens += message.total_tokens
 
-        return kept_messages
+        return sorted(kept_messages, key=lambda m: m.timestamp)
