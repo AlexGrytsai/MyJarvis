@@ -7,7 +7,6 @@ from uuid import UUID
 
 from src.myjarvis.domain.exceptions import MessageNotFound
 from src.myjarvis.domain.value_objects import Message
-from src.myjarvis.domain.value_objects.chat_limits import ChatLimits
 
 
 @dataclass(frozen=True, slots=True)
@@ -120,60 +119,3 @@ class MessageCollection:
         ]
 
         return self.partial_remove(ids_to_remove)
-
-    def _enforce_limits(
-        self,
-        messages: List[Message],
-        limits: ChatLimits,
-    ) -> List[Message]:
-        """
-        Enforces the limits on the messages in the collection and returns a new
-        list of messages.
-        """
-        return self._enforce_max_tokens(
-            messages=self._enforce_max_messages(messages, limits),
-            limits=limits,
-        )
-
-    @staticmethod
-    def _enforce_max_messages(
-        messages: List[Message], limits: ChatLimits
-    ) -> List[Message]:
-        """
-        Enforces the maximum number of messages in the collection and returns a
-        new list of messages.
-        """
-        if limits.max_messages is None or len(messages) <= limits.max_messages:
-            return messages
-
-        return messages[-limits.max_messages :]
-
-    def _enforce_max_tokens(
-        self,
-        messages: List[Message],
-        limits: ChatLimits,
-    ) -> List[Message]:
-        """
-        Enforces the maximum number of tokens in the collection and returns
-        a new list of messages.
-        """
-        if limits.max_tokens is None or self.total_tokens <= limits.max_tokens:
-            return messages
-
-        sorted_messages = sorted(
-            messages, key=lambda m: m.timestamp, reverse=True
-        )
-
-        kept_messages = []
-        accumulated_tokens = 0
-
-        for message in sorted_messages:
-            if (
-                accumulated_tokens + message.total_tokens
-                > self.limits.max_tokens
-            ):
-                break
-            kept_messages.append(message)
-            accumulated_tokens += message.total_tokens
-
-        return kept_messages
