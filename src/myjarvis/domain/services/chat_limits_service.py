@@ -56,8 +56,8 @@ class ChatContextLimitsService:
 
         return messages[-limits.max_messages :]
 
+    @staticmethod
     def _enforce_max_tokens(
-        self,
         messages: List[Message],
         limits: ChatLimits,
     ) -> List[Message]:
