@@ -3,7 +3,7 @@ from typing import Tuple, Optional, List, TypeAlias
 
 from src.myjarvis.domain.value_objects import MessageCollection, Message
 
-Errors: TypeAlias = Optional[List[str]]
+ErrorsMessages: TypeAlias = Optional[List[str]]
 
 
 class MessageExpirationService:
@@ -19,7 +19,7 @@ class MessageExpirationService:
 
     def remove_expired_messages(
         self, messages_collection: MessageCollection, timeout: int
-    ) -> Tuple[MessageCollection, Errors]:
+    ) -> Tuple[MessageCollection, ErrorsMessages]:
         """
         Removes expired messages from the collection and returns a new
         """
