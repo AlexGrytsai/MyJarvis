@@ -6,6 +6,6 @@ entity or value object. They orchestrate business logic involving multiple
 domain objects.
 """
 
-from .chat_limits_service import ChatLimitsService
+from .chat_limits_service import ChatContextLimitsService
 
-__all__ = ["ChatLimitsService"]
+__all__ = ["ChatContextLimitsService"]

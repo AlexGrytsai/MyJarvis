@@ -5,7 +5,7 @@ from src.myjarvis.domain.value_objects import Message, ChatLimits
 
 
 @dataclass(slots=True)
-class ChatLimitsService:
+class ChatContextLimitsService:
     """
     This class is responsible for enforcing chat limits.
 
