@@ -41,6 +41,8 @@ class MessageCollection:
             return MessageCollection(messages)
         return MessageCollection(
             {message.message_id: message for message in messages}
+            if messages
+            else {}
         )
 
     def add_message(self, message: Message) -> MessageCollection:
@@ -105,13 +107,12 @@ class MessageCollection:
 
         return result
 
-    @staticmethod
-    def restore_history(messages: List[Message]) -> MessageCollection:
+    def restore_history(self, messages: List[Message]) -> MessageCollection:
         """
         Restores the history of the collection from a list of messages.
         """
         sorted_messages = sorted(messages, key=lambda m: m.timestamp)
 
-        return MessageCollection(
+        return self.create(
             {message.message_id: message for message in sorted_messages},
         )
