@@ -70,11 +70,10 @@ class ChatContext:
         messages = list(self.message_collection.messages.values())
         messages.append(message)
 
-        messages_after_apply_limits = self.chat_limits_service.apply_limits(
-            messages=messages, limits=self.limits
-        )
         updated_message_collection = self.message_collection.create(
-            messages_after_apply_limits
+            self.chat_limits_service.apply_limits(
+                messages=messages, limits=self.limits
+            )
         )
         return self._create_updated_context(
             message_collection=updated_message_collection
