@@ -137,19 +137,22 @@ class ChatContext:
         )
 
     def clear_history(self):
-        self.message_collection.clear_history()
-        self.updated_at = datetime.now()
+        self._create_updated_context(
+            message_collection=self.message_collection.clear_history()
+        )
 
     def remove_expired(self) -> Tuple[Dict[UUID, Message], Optional[List]]:
-        if not self.timeout:
-            return self.messages, None
+        if not self.limits.timeout:
+            return self.message_collection.messages, None
         now = datetime.now()
 
         ids_to_remove = [
             message_id
-            for message_id in self.messages.keys()
-            if (now - self.messages[message_id].timestamp).total_seconds()
-            > self.timeout
+            for message_id in self.message_collection.messages.keys()
+            if (
+                now - self.message_collection.messages[message_id].timestamp
+            ).total_seconds()
+            > self.limits.timeout
         ]
 
         _, errors = self.partial_remove(ids_to_remove)
