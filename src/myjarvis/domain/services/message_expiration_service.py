@@ -1,0 +1,2 @@
+class MessageExpirationService:
+    pass

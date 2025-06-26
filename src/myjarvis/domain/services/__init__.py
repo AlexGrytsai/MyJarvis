@@ -7,5 +7,6 @@ domain objects.
 """
 
 from .chat_limits_service import ChatContextLimitsService
+from .message_expiration_service import MessageExpirationService
 
-__all__ = ["ChatContextLimitsService"]
+__all__ = ["ChatContextLimitsService", "MessageExpirationService"]
