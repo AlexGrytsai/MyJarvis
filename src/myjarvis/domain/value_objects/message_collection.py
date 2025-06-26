@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union, TypeAlias
 from uuid import UUID
 
 from src.myjarvis.domain.exceptions import MessageNotFound
 from src.myjarvis.domain.services import MessageExpirationService
 from src.myjarvis.domain.value_objects import Message
+
+ErrorsMessages: TypeAlias = Optional[List[str]]
 
 
 @dataclass(frozen=True, slots=True)
@@ -72,7 +74,7 @@ class MessageCollection:
     def partial_remove(
         self,
         message_ids: List[UUID],
-    ) -> Tuple[MessageCollection, Optional[List[str]]]:
+    ) -> Tuple[MessageCollection, ErrorsMessages]:
         """
         Removes a list of messages from the collection and returns a new
         MessageCollection
@@ -128,7 +130,7 @@ class MessageCollection:
 
     def remove_expired(
         self, timeout: Optional[int]
-    ) -> Tuple[MessageCollection, Optional[List[str]]]:
+    ) -> Tuple[MessageCollection, ErrorsMessages]:
         """
         Removes expired messages from the collection and returns a new
         """
