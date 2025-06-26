@@ -221,6 +221,7 @@ class ChatContext:
             agent_id=self.agent_id,
             user_id=self.user_id,
             created_at=self.created_at,
+            limits=kwargs.get("limits", self.limits),
             message_collection=kwargs.get(
                 "message_collection", self.message_collection
             ),
