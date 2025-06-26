@@ -1,17 +1,20 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
 from typing import Dict, List, Optional, Tuple, Union
 from uuid import UUID
 
 from src.myjarvis.domain.exceptions import MessageNotFound
+from src.myjarvis.domain.services import MessageExpirationService
 from src.myjarvis.domain.value_objects import Message
 
 
 @dataclass(frozen=True, slots=True)
 class MessageCollection:
     messages: Dict[UUID, Message] = field(default_factory=dict)
+    message_expiration_service: MessageExpirationService = field(
+        default_factory=MessageExpirationService
+    )
 
     @property
     def total_tokens(self) -> int:
@@ -129,14 +132,6 @@ class MessageCollection:
         """
         Removes expired messages from the collection and returns a new
         """
-        if not timeout:
-            return self, None
-
-        now = datetime.now()
-        ids_to_remove = [
-            message_id
-            for message_id, message in self.messages.items()
-            if (now - message.timestamp).total_seconds() > timeout
-        ]
-
-        return self.partial_remove(ids_to_remove)
+        return self.message_expiration_service.remove_expired_messages(
+            self, timeout
+        )
