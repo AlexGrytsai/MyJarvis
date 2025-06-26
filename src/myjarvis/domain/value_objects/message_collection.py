@@ -1,13 +1,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple, Union, TypeAlias
+from typing import Dict, List, Optional, Union
 from uuid import UUID
 
 from src.myjarvis.domain.exceptions import MessageNotFound
 from src.myjarvis.domain.value_objects import Message
-
-ErrorsMessages: TypeAlias = Optional[List[str]]
 
 
 @dataclass(frozen=True, slots=True)
@@ -42,7 +40,7 @@ class MessageCollection:
         if isinstance(messages, dict):
             return MessageCollection(messages)
         return MessageCollection(
-            {message.message_id: message for message in messages} or {}
+            {message.message_id: message for message in messages}
         )
 
     def add_message(self, message: Message) -> MessageCollection:
@@ -70,27 +68,19 @@ class MessageCollection:
     def partial_remove(
         self,
         message_ids: List[UUID],
-    ) -> Tuple[MessageCollection, ErrorsMessages]:
+    ) -> MessageCollection:
         """
         Removes a list of messages from the collection and returns a new
         MessageCollection
         """
-        errors = []
-        updated_collection = self.messages.copy()
-
+        existing_messages = self.messages.copy()
         for message_id in message_ids:
-            try:
-                updated_collection = updated_collection.remove_message(
-                    message_id
-                )
-            except MessageNotFound:
-                errors.append(f"Message with ID: '{message_id}' not found")
+            if message_id in existing_messages:
+                del existing_messages[message_id]
+        return self.create(existing_messages)
 
-        return updated_collection, errors or None
-
-    @staticmethod
-    def clear_history() -> MessageCollection:
-        return MessageCollection()
+    def clear_history(self) -> MessageCollection:
+        return self.create()
 
     def get_history(
         self,
@@ -110,7 +100,9 @@ class MessageCollection:
                 max_messages and len(result) >= max_messages
             ):
                 break
-            result.insert(0, message)
+            result.append(message)
+        result.reverse()
+
         return result
 
     @staticmethod
