@@ -15,6 +15,10 @@ from src.myjarvis.domain.services import (
     ChatContextLimitsService,
     MessageExpirationService,
 )
+from src.myjarvis.domain.services.chat_limits_service import (
+    MaxMessagesLimitStrategy,
+    MaxTokensLimitStrategy,
+)
 from src.myjarvis.domain.value_objects import (
     Message,
     ChatLimits,
@@ -34,7 +38,12 @@ class ChatContext:
     )
     limits: Optional[ChatLimits] = None
     chat_limits_service: ChatContextLimitsService = field(
-        default_factory=ChatContextLimitsService
+        default_factory=lambda: ChatContextLimitsService(
+            [
+                MaxMessagesLimitStrategy(),
+                MaxTokensLimitStrategy(),
+            ]
+        )
     )
     message_expiration_service: MessageExpirationService = field(
         default_factory=MessageExpirationService
