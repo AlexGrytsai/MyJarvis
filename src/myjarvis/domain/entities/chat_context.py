@@ -30,9 +30,9 @@ ErrorsMessages: TypeAlias = Optional[List[str]]
 
 @dataclass
 class ChatContext:
-    context_id: UUID
-    agent_id: UUID
-    user_id: UUID
+    _context_id: UUID
+    _agent_id: UUID
+    _user_id: UUID
     message_collection: MessageCollection = field(
         default_factory=MessageCollection
     )
@@ -53,6 +53,18 @@ class ChatContext:
 
     def __post_init__(self):
         self._validate_required_fields()
+
+    @property
+    def context_id(self) -> UUID:
+        return self._context_id
+
+    @property
+    def agent_id(self) -> UUID:
+        return self._agent_id
+
+    @property
+    def user_id(self) -> UUID:
+        return self._user_id
 
     @classmethod
     def create(
