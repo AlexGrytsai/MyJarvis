@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Union
 from uuid import UUID
 
 from src.myjarvis.domain.exceptions import MessageNotFound
@@ -25,7 +25,8 @@ class MessageCollection:
 
     @classmethod
     def create(
-        cls, messages: Optional[List[Message]] = None
+        cls,
+        messages: Optional[Union[List[Message], Dict[UUID, Message]]] = None,
     ) -> MessageCollection:
         """
         Creates a new MessageCollection instance.
@@ -37,6 +38,8 @@ class MessageCollection:
         Returns:
             MessageCollection instance.
         """
+        if isinstance(messages, dict):
+            return MessageCollection(messages)
         return MessageCollection(
             {message.message_id: message for message in messages} or {}
         )
