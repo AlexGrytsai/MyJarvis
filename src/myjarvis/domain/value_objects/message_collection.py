@@ -85,7 +85,7 @@ class MessageCollection:
         return updated_collection, errors or None
 
     @staticmethod
-    def clear_history(self) -> MessageCollection:
+    def clear_history() -> MessageCollection:
         return MessageCollection()
 
     def get_history(
