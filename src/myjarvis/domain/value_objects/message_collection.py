@@ -5,7 +5,6 @@ from typing import Dict, List, Optional, Tuple, Union, TypeAlias
 from uuid import UUID
 
 from src.myjarvis.domain.exceptions import MessageNotFound
-from src.myjarvis.domain.services import MessageExpirationService
 from src.myjarvis.domain.value_objects import Message
 
 ErrorsMessages: TypeAlias = Optional[List[str]]
@@ -14,9 +13,6 @@ ErrorsMessages: TypeAlias = Optional[List[str]]
 @dataclass(frozen=True, slots=True)
 class MessageCollection:
     messages: Dict[UUID, Message] = field(default_factory=dict)
-    message_expiration_service: MessageExpirationService = field(
-        default_factory=MessageExpirationService
-    )
 
     @property
     def total_tokens(self) -> int:
@@ -126,14 +122,4 @@ class MessageCollection:
 
         return MessageCollection(
             {message.message_id: message for message in sorted_messages},
-        )
-
-    def remove_expired(
-        self, timeout: Optional[int]
-    ) -> Tuple[MessageCollection, ErrorsMessages]:
-        """
-        Removes expired messages from the collection and returns a new
-        """
-        return self.message_expiration_service.remove_expired_messages(
-            self, timeout
         )
