@@ -12,27 +12,7 @@ from src.myjarvis.domain.value_objects.chat_limits import ChatLimits
 
 @dataclass(frozen=True, slots=True)
 class MessageCollection:
-    """
-    Value object that stores a collection of messages, along with their limits.
-
-    Stores a mapping of message IDs to Message objects, as well as a ChatLimits
-    object that describes the limits of the messages in the collection.
-
-    Also provides methods for adding and removing messages, which return new
-    MessageCollection objects with the updated messages and limits.
-    """
-
     messages: Dict[UUID, Message] = field(default_factory=dict)
-    limits: ChatLimits = field(default_factory=ChatLimits)
-
-    def __post_init__(self):
-        messages_with_limits = self._enforce_limits(
-            messages=list(self.messages.values()),
-            limits=self.limits,
-        )
-        object.__setattr__(
-            self, "messages", {m.message_id: m for m in messages_with_limits}
-        )
 
     @property
     def total_tokens(self) -> int:
@@ -51,7 +31,7 @@ class MessageCollection:
         updated_messages = self.messages.copy()
         updated_messages[message.message_id] = message
 
-        return MessageCollection(updated_messages, self.limits)
+        return MessageCollection(updated_messages)
 
     def remove_message(self, message_id: UUID) -> MessageCollection:
         """
@@ -64,7 +44,7 @@ class MessageCollection:
         updated_messages = self.messages.copy()
         del updated_messages[message_id]
 
-        return MessageCollection(updated_messages, self.limits)
+        return MessageCollection(updated_messages)
 
     def partial_remove(
         self,
@@ -87,8 +67,9 @@ class MessageCollection:
 
         return updated_collection, errors or None
 
+    @staticmethod
     def clear_history(self) -> MessageCollection:
-        return MessageCollection(limits=self.limits)
+        return MessageCollection()
 
     def get_history(
         self,
@@ -111,7 +92,8 @@ class MessageCollection:
             result.insert(0, message)
         return result
 
-    def restore_history(self, messages: List[Message]) -> MessageCollection:
+    @staticmethod
+    def restore_history(messages: List[Message]) -> MessageCollection:
         """
         Restores the history of the collection from a list of messages.
         """
@@ -119,7 +101,6 @@ class MessageCollection:
 
         return MessageCollection(
             {message.message_id: message for message in sorted_messages},
-            self.limits,
         )
 
     def remove_expired(
