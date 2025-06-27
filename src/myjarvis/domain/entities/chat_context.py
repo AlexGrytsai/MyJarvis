@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 from datetime import datetime
 from typing import List, Optional, Dict, Any, Tuple, TypeAlias
 from uuid import UUID
@@ -11,14 +10,7 @@ from src.myjarvis.domain.exceptions import (
     MessageHasInvalidParentId,
     MessageNotFound,
 )
-from src.myjarvis.domain.services import (
-    ChatContextLimitsService,
-    MessageExpirationService,
-)
-from src.myjarvis.domain.services.chat_limits_service import (
-    MaxMessagesLimitStrategy,
-    MaxTokensLimitStrategy,
-)
+from src.myjarvis.domain.services import MessageOperationsService
 from src.myjarvis.domain.value_objects import (
     Message,
     ChatLimits,
@@ -28,28 +20,24 @@ from src.myjarvis.domain.value_objects import (
 ErrorsMessages: TypeAlias = Optional[List[str]]
 
 
-@dataclass
 class ChatContext:
-    _context_id: UUID
-    _agent_id: UUID
-    _user_id: UUID
-    message_collection: MessageCollection = field(
-        default_factory=MessageCollection
-    )
-    limits: Optional[ChatLimits] = None
-    chat_limits_service: ChatContextLimitsService = field(
-        default_factory=lambda: ChatContextLimitsService(
-            [
-                MaxMessagesLimitStrategy(),
-                MaxTokensLimitStrategy(),
-            ]
-        )
-    )
-    message_expiration_service: MessageExpirationService = field(
-        default_factory=MessageExpirationService
-    )
-    created_at: datetime = field(default_factory=datetime.now)
-    updated_at: datetime = field(default_factory=datetime.now)
+    def __init__(
+        self,
+        context_id: UUID,
+        agent_id: UUID,
+        user_id: UUID,
+        message_collection: MessageCollection = MessageCollection(),
+        limits: Optional[ChatLimits] = None,
+        message_service: Optional[MessageOperationsService] = None,
+    ):
+        self._context_id = context_id
+        self._agent_id = agent_id
+        self._user_id = user_id
+        self._message_collection = message_collection
+        self._message_service = message_service
+        self._limits = limits
+        self._created_at = datetime.now()
+        self._updated_at = datetime.now()
 
     def __post_init__(self):
         self._validate_required_fields()
@@ -65,6 +53,14 @@ class ChatContext:
     @property
     def user_id(self) -> UUID:
         return self._user_id
+
+    @property
+    def created_at(self) -> datetime:
+        return self._created_at
+
+    @property
+    def updated_at(self) -> datetime:
+        return self._updated_at
 
     @classmethod
     def create(
