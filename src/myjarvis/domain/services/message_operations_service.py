@@ -16,7 +16,7 @@ from src.myjarvis.domain.value_objects import (
 )
 
 
-@dataclass
+@dataclass(frozen=True, slots=True)
 class MessageOperationsService:
     """
     MessageOperationsService is a service that encapsulates operations
