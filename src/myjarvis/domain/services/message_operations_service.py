@@ -26,6 +26,7 @@ class MessageOperationsService:
     operations and ensuring that the invariants of the ChatContext and Message
     collections are preserved.
     """
+
     slots = ("services",)
 
     def __init__(self, services: Optional[ChatContextServices] = None) -> None:
