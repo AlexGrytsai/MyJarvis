@@ -7,7 +7,6 @@ from uuid import UUID
 from src.myjarvis.domain.exceptions import (
     AgentIdRequired,
     UserIdRequired,
-    MessageHasInvalidParentId,
     MessageNotFound,
 )
 from src.myjarvis.domain.services import MessageOperationsService
@@ -29,6 +28,8 @@ class ChatContext:
         message_service: MessageOperationsService,
         message_collection: MessageCollection = MessageCollection(),
         limits: Optional[ChatLimits] = None,
+        created_at: Optional[datetime] = None,
+        updated_at: Optional[datetime] = None,
     ):
         self._context_id = context_id
         self._agent_id = agent_id
@@ -36,8 +37,8 @@ class ChatContext:
         self._message_collection = message_collection
         self._message_service = message_service
         self._limits = limits
-        self._created_at = datetime.now()
-        self._updated_at = datetime.now()
+        self._created_at = created_at or datetime.now()
+        self._updated_at = updated_at or datetime.now()
 
     @property
     def context_id(self) -> UUID:
@@ -65,34 +66,35 @@ class ChatContext:
         context_id: UUID,
         agent_id: UUID,
         user_id: UUID,
+        message_service: MessageOperationsService,
+        message_collection: MessageCollection = MessageCollection(),
         max_messages: Optional[int] = None,
         max_tokens: Optional[int] = None,
         timeout: Optional[int] = None,
+        created_at: Optional[datetime] = None,
     ) -> ChatContext:
         return cls(
             context_id=context_id,
             agent_id=agent_id,
             user_id=user_id,
+            message_service=message_service,
+            message_collection=message_collection,
             limits=ChatLimits(
                 max_messages=max_messages,
                 max_tokens=max_tokens,
                 timeout=timeout,
             ),
+            created_at=created_at or datetime.now(),
         )
 
     def add_message(self, message: Message) -> ChatContext:
-        if message.parent_message_id and all(
-            m.message_id != message.parent_message_id
-            for m in self.message_collection.messages.values()
-        ):
-            raise MessageHasInvalidParentId(
-                "Parent ID (parent_message_id) does not exist"
+        return self._create_updated_context(
+            message_collection=self._message_service.add_message(
+                message=message,
+                message_collection=self._message_collection,
+                limits=self._limits,
             )
-
-        messages = list(self.message_collection.messages.values())
-        messages.append(message)
-
-        return self._create_updated_context(messages=messages)
+        )
 
     def get_history(
         self,
@@ -224,18 +226,18 @@ class ChatContext:
         limits: Optional[ChatLimits] = None,
         messages: Optional[List[Message]] = None,
     ) -> ChatContext:
-        if messages and not message_collection:
-            check_limits = self.chat_limits_service.apply_limits(
-                messages=messages, limits=self.limits
+        if not message_collection and messages:
+            message_collection = self._message_collection.create(
+                messages=messages
             )
-            message_collection = self.message_collection.create(check_limits)
         return ChatContext(
             context_id=self.context_id,
             agent_id=self.agent_id,
             user_id=self.user_id,
-            created_at=self.created_at,
-            limits=limits or self.limits,
-            message_collection=message_collection or self.message_collection,
+            created_at=self._created_at,
+            limits=limits or self._limits,
+            message_collection=message_collection or self._message_collection,
+            message_service=self._message_service,
             updated_at=datetime.now(),
         )
 
