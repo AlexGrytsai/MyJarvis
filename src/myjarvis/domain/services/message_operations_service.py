@@ -233,7 +233,7 @@ class MessageOperationsService:
 
     @staticmethod
     def _check_parent_message_exists(
-        parent_message_id: UUID,
+        parent_message_id: Optional[UUID],
         message_collection: MessageCollection,
     ) -> bool:
         return not parent_message_id or any(
@@ -246,7 +246,7 @@ class MessageOperationsService:
         message_ids: List[UUID],
         message_collection: MessageCollection,
     ) -> List[UUID]:
-        filtered_message_ids = []
+        filtered_message_ids: List[UUID] = []
         filtered_message_ids.extend(
             message_id
             for message_id in message_ids
