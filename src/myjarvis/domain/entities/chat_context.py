@@ -26,7 +26,7 @@ class ChatContext:
         user_id: UUID,
         message_service: MessageOperationsService,
         message_collection: MessageCollection = MessageCollection(),
-        limits: Optional[ChatLimits] = None,
+        limits: ChatLimits = ChatLimits(),
         created_at: Optional[datetime] = None,
         updated_at: Optional[datetime] = None,
     ):
@@ -111,7 +111,7 @@ class ChatContext:
         attachments: Optional[List[Any]] = None,
         metadata: Optional[Dict[str, Any]] = None,
         total_tokens: Optional[int] = None,
-    ) -> Message:
+    ) -> Optional[Message]:
         updated_message_collection = self._message_service.update_message(
             message_id=message_id,
             message_collection=self._message_collection,
@@ -138,7 +138,7 @@ class ChatContext:
         )
 
     def remove_expired(self) -> ChatContext:
-        if not self._limits.timeout:
+        if not self._limits or not self._limits.timeout:
             return self
 
         message_collection = self._message_service.remove_expired_messages(
@@ -176,22 +176,14 @@ class ChatContext:
         max_tokens: Optional[int] = None,
         timeout: Optional[int] = None,
     ) -> ChatContext:
-        new_limits = ChatLimits(
-            max_messages=(
-                max_messages
-                if max_messages is not None
-                else self._limits.max_messages
-            ),
-            max_tokens=(
-                max_tokens
-                if max_tokens is not None
-                else self._limits.max_tokens
-            ),
-            timeout=(timeout if timeout is not None else self._limits.timeout),
-        )
 
         return self._create_updated_context(
-            limits=new_limits,
+            limits=self._limits.update_limits(
+                old_limits=self._limits,
+                max_messages=max_messages,
+                max_tokens=max_tokens,
+                timeout=timeout,
+            ),
         )
 
     def _create_updated_context(
