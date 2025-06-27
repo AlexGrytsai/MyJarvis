@@ -10,7 +10,7 @@ from src.myjarvis.domain.services.message_expiration_service import (
 )
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class ChatContextServices:
     """Collection of services related to ChatContext.
 
