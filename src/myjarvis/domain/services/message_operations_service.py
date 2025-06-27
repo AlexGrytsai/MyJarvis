@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from typing import List, Optional, Dict, Any
 from uuid import UUID
 
@@ -16,7 +15,6 @@ from src.myjarvis.domain.value_objects import (
 )
 
 
-@dataclass(frozen=True, slots=True)
 class MessageOperationsService:
     """
     MessageOperationsService is a service that encapsulates operations
@@ -28,8 +26,10 @@ class MessageOperationsService:
     operations and ensuring that the invariants of the ChatContext and Message
     collections are preserved.
     """
+    slots = ("services",)
 
-    _services: ChatContextServices
+    def __init__(self, services: Optional[ChatContextServices] = None) -> None:
+        self._services = services or ChatContextServices.create_default()
 
     def add_message(
         self,
