@@ -54,6 +54,9 @@ class MessageCollection:
 
         return MessageCollection(updated_messages)
 
+    def get_message(self, message_id: UUID) -> Optional[Message]:
+        return self.messages.get(message_id)
+
     def remove_message(self, message_id: UUID) -> MessageCollection:
         """
         Removes a message from the collection and returns a new
