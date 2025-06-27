@@ -96,7 +96,7 @@ class MessageCollection:
         Returns a list of messages in the collection, ordered by timestamp,
         with the most recent message first.
         """
-        result = []
+        result: List[Message] = []
         token_count = 0
 
         for message in reversed(self.messages.values()):
