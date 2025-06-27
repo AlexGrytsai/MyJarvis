@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
 from uuid import UUID
@@ -9,10 +10,9 @@ from src.myjarvis.domain.services.message_operations_service import (
 from src.myjarvis.domain.value_objects import ChatLimits, MessageCollection
 
 
+@dataclass(frozen=True, slots=True)
 class ChatContextFactory:
-
-    def __init__(self, message_operations: MessageOperationsService) -> None:
-        self._message_operations = message_operations
+    _message_operations: MessageOperationsService
 
     def create(
         self,
