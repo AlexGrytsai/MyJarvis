@@ -29,7 +29,7 @@ class MessageOperationsService:
     collections are preserved.
     """
 
-    _services = ChatContextServices
+    _services: ChatContextServices
 
     def add_message(
         self,
