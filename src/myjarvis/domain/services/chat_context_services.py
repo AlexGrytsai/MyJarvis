@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from src.myjarvis.domain.services import (
+from src.myjarvis.domain.services.chat_limits_service import (
     ChatContextLimitsService,
+)
+from src.myjarvis.domain.services.message_expiration_service import (
     MessageExpirationService,
 )
 
