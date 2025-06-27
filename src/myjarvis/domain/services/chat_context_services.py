@@ -30,6 +30,32 @@ class ChatContextServices:
     expiration_service: MessageExpirationService
 
     @classmethod
+    def create(
+        cls,
+        limits_service: ChatContextLimitsService,
+        expiration_service: MessageExpirationService,
+    ) -> ChatContextServices:
+        """Creates an instance of ChatContextServices with custom services.
+
+        This method creates an instance of `ChatContextServices` with the given
+        services. The services are immutable and should not be modified after
+        being passed to this method.
+
+        Args:
+            limits_service (ChatContextLimitsService): the service responsible
+                for enforcing limits on the chat context.
+            expiration_service (MessageExpirationService): the service
+                responsible for expiring messages in the chat context.
+
+        Returns:
+            ChatContextServices: an instance with the given services.
+        """
+        return ChatContextServices(
+            limits_service=limits_service,
+            expiration_service=expiration_service,
+        )
+
+    @classmethod
     def create_default(cls) -> ChatContextServices:
         """
         Creates an instance of ChatContextServices with default services.
