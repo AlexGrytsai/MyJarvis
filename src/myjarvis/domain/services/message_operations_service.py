@@ -32,6 +32,13 @@ class MessageOperationsService:
     def __init__(self, services: Optional[ChatContextServices] = None) -> None:
         self._services = services or ChatContextServices.create_default()
 
+    @staticmethod
+    def get_message(
+        message_id: UUID,
+        message_collection: MessageCollection,
+    ) -> Optional[Message]:
+        return message_collection.get_message(message_id)
+
     def add_message(
         self,
         message: Message,
@@ -78,8 +85,8 @@ class MessageOperationsService:
 
         return message_collection.create(messages)
 
+    @staticmethod
     def update_message(
-        self,
         message_id: UUID,
         message_collection: MessageCollection,
         text: Optional[str] = None,
@@ -109,10 +116,10 @@ class MessageOperationsService:
         Returns:
             A new MessageCollection instance with the updated list of messages.
         """
-        if not self._check_message_exists(message_id, message_collection):
-            raise MessageNotFound(f"Message with ID: '{message_id}' not found")
+        current_message = message_collection.get_message(message_id)
 
-        current_message = message_collection.messages[message_id]
+        if not current_message:
+            raise MessageNotFound(f"Message with ID: '{message_id}' not found")
 
         updated_message = Message(
             message_id=current_message.message_id,
@@ -141,8 +148,8 @@ class MessageOperationsService:
 
         return message_collection.create(updated_messages)
 
+    @staticmethod
     def remove_message(
-        self,
         message_id: UUID,
         message_collection: MessageCollection,
     ) -> MessageCollection:
@@ -160,7 +167,7 @@ class MessageOperationsService:
         Returns:
             A new MessageCollection instance with the message removed.
         """
-        if not self._check_message_exists(message_id, message_collection):
+        if not message_collection.get_message(message_id):
             raise MessageNotFound(f"Message with ID: '{message_id}' not found")
 
         return message_collection.remove_message(message_id)
@@ -235,14 +242,7 @@ class MessageOperationsService:
         )
 
     @staticmethod
-    def _check_message_exists(
-        message_id: UUID,
-        message_collection: MessageCollection,
-    ) -> bool:
-        return message_id in message_collection.messages
-
     def _filter_existing_message_ids(
-        self,
         message_ids: List[UUID],
         message_collection: MessageCollection,
     ) -> List[UUID]:
@@ -250,6 +250,6 @@ class MessageOperationsService:
         filtered_message_ids.extend(
             message_id
             for message_id in message_ids
-            if self._check_message_exists(message_id, message_collection)
+            if message_collection.get_message(message_id)
         )
         return filtered_message_ids
