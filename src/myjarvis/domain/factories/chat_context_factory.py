@@ -4,6 +4,7 @@ from typing import Optional
 from uuid import UUID
 
 from src.myjarvis.domain.entities.chat_context import ChatContext
+from src.myjarvis.domain.exceptions import AgentIdRequired, UserIdRequired
 from src.myjarvis.domain.services.message_operations_service import (
     MessageOperationsService,
 )
@@ -22,7 +23,7 @@ class ChatContextFactory:
         max_messages: Optional[int] = None,
         max_tokens: Optional[int] = None,
         timeout: Optional[int] = None,
-    ) -> Result[ChatContext, str]:
+    ) -> ChatContext:
         validation_result = self._validator.validate_required_fields(
             agent_id, user_id
         )
@@ -80,3 +81,13 @@ class ChatContextFactory:
         )
 
         return success(context)
+
+    @staticmethod
+    def _validate_required_fields(
+        agent_id: UUID = None,
+        user_id: UUID = None,
+    ) -> None:
+        if not agent_id:
+            raise AgentIdRequired("Agent ID (agent_id) required")
+        if not user_id:
+            raise UserIdRequired("User ID (user_id) required")
