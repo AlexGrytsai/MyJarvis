@@ -26,9 +26,9 @@ class ChatContext:
         context_id: UUID,
         agent_id: UUID,
         user_id: UUID,
+        message_service: MessageOperationsService,
         message_collection: MessageCollection = MessageCollection(),
         limits: Optional[ChatLimits] = None,
-        message_service: Optional[MessageOperationsService] = None,
     ):
         self._context_id = context_id
         self._agent_id = agent_id
@@ -38,9 +38,6 @@ class ChatContext:
         self._limits = limits
         self._created_at = datetime.now()
         self._updated_at = datetime.now()
-
-    def __post_init__(self):
-        self._validate_required_fields()
 
     @property
     def context_id(self) -> UUID:
