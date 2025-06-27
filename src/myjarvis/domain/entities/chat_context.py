@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import List, Optional, Dict, Any, Tuple, TypeAlias
+from typing import List, Optional, Dict, Any, TypeAlias
 from uuid import UUID
 
 from src.myjarvis.domain.exceptions import (
     AgentIdRequired,
     UserIdRequired,
-    MessageNotFound,
 )
 from src.myjarvis.domain.services import MessageOperationsService
 from src.myjarvis.domain.value_objects import (
@@ -101,7 +100,7 @@ class ChatContext:
         max_messages: Optional[int] = None,
         max_tokens: Optional[int] = None,
     ) -> List[Message]:
-        return self.message_collection.get_history(
+        return self._message_collection.get_history(
             max_messages=max_messages, max_tokens=max_tokens
         )
 
@@ -113,83 +112,58 @@ class ChatContext:
         metadata: Optional[Dict[str, Any]] = None,
         total_tokens: Optional[int] = None,
     ) -> Message:
-        if message_id not in self.message_collection.messages:
-            raise MessageNotFound(f"Message with ID: '{message_id}' not found")
-
-        current_message = self.message_collection.messages[message_id]
-
-        updated_message = Message(
-            message_id=current_message.message_id,
-            sender=current_message.sender,
-            text=text if text is not None else current_message.text,
-            timestamp=current_message.timestamp,
-            role=current_message.role,
-            parent_message_id=current_message.parent_message_id,
-            attachments=(
-                attachments
-                if attachments is not None
-                else current_message.attachments
-            ),
-            metadata=(
-                metadata if metadata is not None else current_message.metadata
-            ),
-            total_tokens=(
-                total_tokens
-                if total_tokens is not None
-                else current_message.total_tokens
-            ),
+        updated_message_collection = self._message_service.update_message(
+            message_id=message_id,
+            message_collection=self._message_collection,
+            text=text,
+            attachments=attachments,
+            metadata=metadata,
+            total_tokens=total_tokens,
         )
 
-        updated_messages = self.message_collection.messages.copy()
-        updated_messages[updated_message.message_id] = updated_message
-
         return self._create_updated_context(
-            messages=list(updated_messages.values())
-        ).message_collection.messages[message_id]
+            message_collection=updated_message_collection
+        )._message_collection.get_message(message_id)
 
     def remove_message(self, message_id: UUID) -> ChatContext:
         return self._create_updated_context(
-            message_collection=self.message_collection.remove_message(
+            message_collection=self._message_collection.remove_message(
                 message_id
             )
         )
 
     def clear_history(self) -> ChatContext:
         return self._create_updated_context(
-            message_collection=self.message_collection.clear_history()
+            message_collection=self._message_collection.clear_history()
         )
 
-    def remove_expired(self) -> Tuple[ChatContext, ErrorsMessages]:
-        if not self.limits.timeout:
-            return self, None
+    def remove_expired(self) -> ChatContext:
+        if not self._limits.timeout:
+            return self
 
-        message_collection, errors = (
-            self.message_expiration_service.remove_expired_messages(
-                messages_collection=self.message_collection,
-                timeout=self.limits.timeout,
-            )
+        message_collection = self._message_service.remove_expired_messages(
+            message_collection=self._message_collection,
+            timeout=self._limits.timeout,
         )
         self._create_updated_context(message_collection=message_collection)
 
-        return self, errors
+        return self
 
     def partial_remove(
         self,
         message_ids: List[UUID],
-    ) -> Tuple[ChatContext, ErrorsMessages]:
-        errors = []
-        for message_id in message_ids:
-            try:
-                self.remove_message(message_id)
-            except MessageNotFound:
-                errors.append(f"Message with ID: '{message_id}' not found")
-
-        return self, errors
+    ) -> ChatContext:
+        new_message_collection = self._message_collection.partial_remove(
+            message_ids
+        )
+        return self._create_updated_context(
+            message_collection=new_message_collection
+        )
 
     def restore_history(self, messages: List[Message]) -> ChatContext:
         sorted_messages = sorted(messages, key=lambda m: m.timestamp)
         self._create_updated_context(
-            message_collection=self.message_collection.restore_history(
+            message_collection=self._message_collection.restore_history(
                 sorted_messages
             )
         )
@@ -206,14 +180,14 @@ class ChatContext:
             max_messages=(
                 max_messages
                 if max_messages is not None
-                else self.limits.max_messages
+                else self._limits.max_messages
             ),
             max_tokens=(
                 max_tokens
                 if max_tokens is not None
-                else self.limits.max_tokens
+                else self._limits.max_tokens
             ),
-            timeout=(timeout if timeout is not None else self.limits.timeout),
+            timeout=(timeout if timeout is not None else self._limits.timeout),
         )
 
         return self._create_updated_context(
