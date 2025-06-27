@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from typing import Optional
 
@@ -32,3 +34,31 @@ class ChatLimits:
             not isinstance(self.timeout, int) or self.timeout <= 0
         ):
             raise TimeoutNotValid("Timeout must be positive int or None")
+
+    @classmethod
+    def create(
+        cls,
+        max_messages: Optional[int] = None,
+        max_tokens: Optional[int] = None,
+        timeout: Optional[int] = None,
+    ):
+        return cls(
+            max_messages=max_messages,
+            max_tokens=max_tokens,
+            timeout=timeout,
+        )
+
+    def update_limits(
+        self,
+        old_limits: Optional[ChatLimits] = None,
+        max_messages: Optional[int] = None,
+        max_tokens: Optional[int] = None,
+        timeout: Optional[int] = None,
+    ) -> ChatLimits:
+        if not old_limits:
+            return self.create(max_messages, max_tokens, timeout)
+        return self.create(
+            max_messages=max_messages or old_limits.max_messages,
+            max_tokens=max_tokens or old_limits.max_tokens,
+            timeout=timeout or old_limits.timeout,
+        )
