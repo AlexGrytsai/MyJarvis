@@ -140,5 +140,7 @@ class AIAgent:
         return False
 
     def _touch(self) -> None:
-        """Update the timestamp to the current time using the entity's clock."""
+        """
+        Update the timestamp to the current time using the entity's clock.
+        """
         self.updated_at = self._clock()
