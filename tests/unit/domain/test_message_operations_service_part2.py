@@ -296,7 +296,7 @@ def test_mass_remove_messages():
 
 def test_search_in_large_collection():
     s = MessageOperationsService(FakeChatContextServices.create_default())
-    messages = [make_message(text="msg{}".format(i)) for i in range(1000)]
+    messages = [make_message(text=f"msg{i}") for i in range(1000)]
     c = make_collection(messages)
     mid = messages[500].message_id
     found = s.get_message(mid, c)
