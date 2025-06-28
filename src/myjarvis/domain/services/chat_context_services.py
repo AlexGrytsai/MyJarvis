@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from src.myjarvis.domain.exceptions.domain_exceptions import (
+    InvalidChatContextServiceError,
+)
 from src.myjarvis.domain.services.chat_limits_service import (
     ChatContextLimitsService,
 )
@@ -42,14 +45,18 @@ class ChatContextServices:
         being passed to this method.
 
         Args:
-            limits_service (ChatContextLimitsService): the service responsible
-                for enforcing limits on the chat context.
-            expiration_service (MessageExpirationService): the service
-                responsible for expiring messages in the chat context.
+            limits_service: the service responsible for enforcing limits on
+                            the chat context.
+            expiration_service: the service responsible for expiring messages
+                                in the chat context.
 
         Returns:
             ChatContextServices: an instance with the given services.
         """
+        if limits_service is None or expiration_service is None:
+            raise InvalidChatContextServiceError(
+                "limits_service and expiration_service must not be None"
+            )
         return ChatContextServices(
             limits_service=limits_service,
             expiration_service=expiration_service,
