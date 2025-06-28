@@ -2,6 +2,9 @@ from dataclasses import FrozenInstanceError
 
 import pytest
 
+from src.myjarvis.domain.exceptions.domain_exceptions import (
+    InvalidChatContextServiceError,
+)
 from src.myjarvis.domain.services.chat_context_services import (
     ChatContextServices,
 )
@@ -95,8 +98,8 @@ def test_create_with_fake_services():
     limits = FakeLimitsService()
     expiration = FakeExpirationService()
     services = ChatContextServices.create(limits, expiration)
-    assert isinstance(services.limits_service, FakeLimitsService)
-    assert isinstance(services.expiration_service, FakeExpirationService)
+    assert services.limits_service is limits
+    assert services.expiration_service is expiration
 
 
 def test_create_with_same_service_instance():
@@ -152,3 +155,20 @@ def test_thread_safety():
         t.join()
     assert len(results) == 10
     assert all(isinstance(s, ChatContextServices) for s in results)
+
+
+def test_create_with_none_limits_service():
+    expiration = FakeExpirationService()
+    with pytest.raises(InvalidChatContextServiceError):
+        ChatContextServices.create(None, expiration)
+
+
+def test_create_with_none_expiration_service():
+    limits = FakeLimitsService()
+    with pytest.raises(InvalidChatContextServiceError):
+        ChatContextServices.create(limits, None)
+
+
+def test_create_with_both_none_services():
+    with pytest.raises(InvalidChatContextServiceError):
+        ChatContextServices.create(None, None)
