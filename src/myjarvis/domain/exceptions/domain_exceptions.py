@@ -14,7 +14,7 @@ class WrongIdType(DomainException):
     """Raised when the id type is not valid."""
 
 
-class WrongDatatimeType(DomainException):
+class WrongDatetimeType(DomainException):
     """Raised when the datetime type is not valid."""
 
 

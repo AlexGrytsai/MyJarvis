@@ -22,7 +22,7 @@ from .domain_exceptions import TimeoutNotValid
 from .domain_exceptions import UnavailableAgentName
 from .domain_exceptions import UnexpectedException
 from .domain_exceptions import UserIdRequired
-from .domain_exceptions import WrongDatatimeType
+from .domain_exceptions import WrongDatetimeType
 from .domain_exceptions import WrongIdType
 
 __all__ = [
@@ -42,7 +42,7 @@ __all__ = [
     "MessageTooLong",
     "AttachmentsToMessageInWrongFormat",
     "WrongIdType",
-    "WrongDatatimeType",
+    "WrongDatetimeType",
     "InvalidMessageRole",
     "UserIdRequired",
     "ContextIdInvalidFormat",
