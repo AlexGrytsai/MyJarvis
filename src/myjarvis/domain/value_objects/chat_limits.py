@@ -58,7 +58,13 @@ class ChatLimits:
         if not old_limits:
             return self.create(max_messages, max_tokens, timeout)
         return self.create(
-            max_messages=max_messages or old_limits.max_messages,
-            max_tokens=max_tokens or old_limits.max_tokens,
-            timeout=timeout or old_limits.timeout,
+            max_messages=(
+                max_messages
+                if max_messages is not None
+                else old_limits.max_messages
+            ),
+            max_tokens=(
+                max_tokens if max_tokens is not None else old_limits.max_tokens
+            ),
+            timeout=timeout if timeout is not None else old_limits.timeout,
         )
