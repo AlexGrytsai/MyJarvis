@@ -33,6 +33,9 @@ class ChatContext:
         self._context_id = context_id
         self._agent_id = agent_id
         self._user_id = user_id
+
+        self._validate_required_fields()
+
         self._message_collection = message_collection or MessageCollection()
         self._message_service = message_service
         self._limits = limits or ChatLimits()
