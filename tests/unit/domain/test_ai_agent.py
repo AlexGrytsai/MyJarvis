@@ -5,8 +5,15 @@ import pytest
 
 from src.myjarvis.domain.entities import AIAgent
 from src.myjarvis.domain.value_objects import UserId, AgentId, NodeId
-from src.myjarvis.domain.value_objects.ai_agent_name import AgentName, UnavailableAgentName
-from src.myjarvis.domain.value_objects.llm_model import LlmModel, TemperatureNotValid, MaxTokensNotValid
+from src.myjarvis.domain.value_objects.ai_agent_name import (
+    AgentName,
+    UnavailableAgentName,
+)
+from src.myjarvis.domain.value_objects.llm_model import (
+    LlmModel,
+    TemperatureNotValid,
+    MaxTokensNotValid,
+)
 from src.myjarvis.domain.value_objects.llm_provider import LlmProvider
 
 

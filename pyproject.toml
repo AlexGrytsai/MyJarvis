@@ -17,18 +17,24 @@ black = "^25.1.0"
 flake8 = "^7.3.0"
 mypy = "^1.16.1"
 pytest = "^8.4.1"
+flake8-pyproject = "^1.2.3"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
-[flake8]
+[tool.flake8]
 inline-quotes = "\""
 ignore = ["E203", "E266", "W503", "N807", "N818", "F401"]
 max-line-length = 79
 max-complexity = 18
 select = ["B","C","E","F","W","T4","B9","Q0","N8","VNE"]
-exclude = []
+exclude = [
+    "tests",
+    "src/myjarvis/application/",
+    "src/myjarvis/infrastructure/",
+    "src/myjarvis/presentation/",
+]
 
 [tool.black]
 line-length = 79

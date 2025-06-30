@@ -1,14 +1,34 @@
+from .domain_exceptions import AgentIdRequired
 from .domain_exceptions import AgentNotFoundInUser
+from .domain_exceptions import AttachmentsToMessageInWrongFormat
+from .domain_exceptions import ContextIdInvalidFormat
+from .domain_exceptions import EmailNotValid
+from .domain_exceptions import InvalidMessageRole
 from .domain_exceptions import LLMProviderAlreadyExistsInUser
 from .domain_exceptions import LLMProviderNotExistsInUser
+from .domain_exceptions import MaxMessagesNotValid
 from .domain_exceptions import MaxTokensNotValid
+from .domain_exceptions import MessageCouldNotBeEmpty
+from .domain_exceptions import MessageHasInvalidParentId
+from .domain_exceptions import MessageMetaDataWrongFormat
+from .domain_exceptions import MessageNotFound
+from .domain_exceptions import MessageTooLong
+from .domain_exceptions import MessageWithoutId
+from .domain_exceptions import MessagesListNotValid
 from .domain_exceptions import NewEmailSameAsCurrent
 from .domain_exceptions import NewUsernameSameAsCurrent
 from .domain_exceptions import TemperatureNotValid
+from .domain_exceptions import TimeoutNotValid
 from .domain_exceptions import UnavailableAgentName
+from .domain_exceptions import UnexpectedException
+from .domain_exceptions import UserIdRequired
+from .domain_exceptions import WrongDatetimeType
+from .domain_exceptions import WrongIdType
 
 __all__ = [
     "AgentNotFoundInUser",
+    "AgentIdRequired",
+    "EmailNotValid",
     "MaxTokensNotValid",
     "NewEmailSameAsCurrent",
     "NewUsernameSameAsCurrent",
@@ -16,4 +36,20 @@ __all__ = [
     "LLMProviderNotExistsInUser",
     "TemperatureNotValid",
     "UnavailableAgentName",
+    "MessageCouldNotBeEmpty",
+    "MessageWithoutId",
+    "MessageMetaDataWrongFormat",
+    "MessageTooLong",
+    "AttachmentsToMessageInWrongFormat",
+    "WrongIdType",
+    "WrongDatetimeType",
+    "InvalidMessageRole",
+    "UserIdRequired",
+    "ContextIdInvalidFormat",
+    "MaxMessagesNotValid",
+    "TimeoutNotValid",
+    "MessagesListNotValid",
+    "MessageHasInvalidParentId",
+    "UnexpectedException",
+    "MessageNotFound",
 ]
