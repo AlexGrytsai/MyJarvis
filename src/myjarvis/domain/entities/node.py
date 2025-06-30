@@ -7,10 +7,13 @@ description of its capabilities and a set of commands it can execute. This
 information helps the LLM decide which tool to use for a given task.
 
 Implementation details:
-- The class should be a Pydantic BaseModel.
 - It should have fields like `node_id`, `name`, `description`, a list of
   `commands`, and `node_type` (e.g., 'API', 'Database').
 - The `commands` should be well-defined, perhaps as a list of objects, each
   with a name, description, and parameter schema.
 - The entity should have methods to validate its configuration.
 """
+
+
+class Node:
+    pass
