@@ -10,7 +10,7 @@ from src.myjarvis.domain.exceptions import (
     MessageTooLong,
     AttachmentsToMessageInWrongFormat,
     WrongIdType,
-    WrongDatatimeType,
+    WrongDatetimeType,
     InvalidMessageRole,
 )
 from src.myjarvis.domain.value_objects.message_role import MessageRole
@@ -51,7 +51,7 @@ class Message:
         ):
             raise WrongIdType("Parent_message_id must be UUID")
         if not isinstance(self.timestamp, datetime):
-            raise WrongDatatimeType("Timestamp must be datetime")
+            raise WrongDatetimeType("Timestamp must be datetime")
         if not isinstance(self.role, MessageRole):
             raise InvalidMessageRole("Role must be MessageRole")
         if not isinstance(self.attachments, list):
