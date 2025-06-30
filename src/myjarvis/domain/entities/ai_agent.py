@@ -4,6 +4,7 @@ from dataclasses import dataclass, field, InitVar
 from datetime import datetime, timezone
 from typing import Callable, List, Optional
 
+from src.myjarvis.domain.repositories import NodeRepository
 from src.myjarvis.domain.value_objects import (
     AgentId,
     NodeId,
@@ -13,7 +14,7 @@ from src.myjarvis.domain.value_objects.ai_agent_name import AgentName
 from src.myjarvis.domain.value_objects.llm_model import LlmModel
 
 
-@dataclass
+@dataclass(frozen=True)
 class AIAgent:
     """
     The AIAgent is a core domain entity.
@@ -42,7 +43,9 @@ class AIAgent:
     _clock: Callable[[], datetime] = field(init=False, repr=False)
 
     def __post_init__(self, clock: Optional[Callable[[], datetime]]):
-        self._clock = clock or (lambda: datetime.now(timezone.utc))
+        object.__setattr__(
+            self, "_clock", clock or (lambda: datetime.now(timezone.utc))
+        )
 
     @classmethod
     def create(
@@ -71,76 +74,156 @@ class AIAgent:
         """Check if the agent is marked as deleted."""
         return self.deleted_at is not None
 
-    def delete(self) -> bool:
+    def delete(self) -> AIAgent:
         """Mark the agent as deleted (soft delete)."""
         if not self.is_deleted:
-            self.deleted_at = self._clock()
-            self._touch()
-            return True
-        return False
+            return AIAgent(
+                id=self.id,
+                user_id=self.user_id,
+                name=self.name,
+                llm_model=self.llm_model,
+                created_at=self.created_at,
+                updated_at=self._clock(),
+                description=self.description,
+                base_prompt=self.base_prompt,
+                node_ids=self.node_ids.copy(),
+                deleted_at=self._clock(),
+                clock=self._clock,
+            )
+        return self
 
-    def restore(self) -> bool:
+    def restore(self) -> AIAgent:
         """Restore a soft-deleted agent."""
         if self.is_deleted:
-            self.deleted_at = None
-            self._touch()
-            return True
-        return False
+            return AIAgent(
+                id=self.id,
+                user_id=self.user_id,
+                name=self.name,
+                llm_model=self.llm_model,
+                created_at=self.created_at,
+                updated_at=self._clock(),
+                description=self.description,
+                base_prompt=self.base_prompt,
+                node_ids=self.node_ids.copy(),
+                deleted_at=None,
+                clock=self._clock,
+            )
+        return self
 
     def update_name(self, new_name: AgentName) -> AIAgent:
         """Update the agent's name."""
-        self.name = new_name
-        self._touch()
-
-        return self
+        return AIAgent(
+            id=self.id,
+            user_id=self.user_id,
+            name=new_name,
+            llm_model=self.llm_model,
+            created_at=self.created_at,
+            updated_at=self._clock(),
+            description=self.description,
+            base_prompt=self.base_prompt,
+            node_ids=self.node_ids.copy(),
+            deleted_at=self.deleted_at,
+            clock=self._clock,
+        )
 
     def update_description(self, new_description: Optional[str]) -> AIAgent:
         """Update the agent's description."""
-        self.description = new_description
-        self._touch()
-
-        return self
+        return AIAgent(
+            id=self.id,
+            user_id=self.user_id,
+            name=self.name,
+            llm_model=self.llm_model,
+            created_at=self.created_at,
+            updated_at=self._clock(),
+            description=new_description,
+            base_prompt=self.base_prompt,
+            node_ids=self.node_ids.copy(),
+            deleted_at=self.deleted_at,
+            clock=self._clock,
+        )
 
     def update_prompt(self, new_prompt: Optional[str]) -> AIAgent:
         """Update the agent's base prompt."""
-        self.base_prompt = new_prompt
-        self._touch()
-
-        return self
+        return AIAgent(
+            id=self.id,
+            user_id=self.user_id,
+            name=self.name,
+            llm_model=self.llm_model,
+            created_at=self.created_at,
+            updated_at=self._clock(),
+            description=self.description,
+            base_prompt=new_prompt,
+            node_ids=self.node_ids.copy(),
+            deleted_at=self.deleted_at,
+            clock=self._clock,
+        )
 
     def update_llm_model(self, new_model: LlmModel) -> AIAgent:
         """Update the agent's LLM configuration."""
-        self.llm_model = new_model
-        self._touch()
+        return AIAgent(
+            id=self.id,
+            user_id=self.user_id,
+            name=self.name,
+            llm_model=new_model,
+            created_at=self.created_at,
+            updated_at=self._clock(),
+            description=self.description,
+            base_prompt=self.base_prompt,
+            node_ids=self.node_ids.copy(),
+            deleted_at=self.deleted_at,
+            clock=self._clock,
+        )
 
+    def attach_node(
+        self,
+        node_id: NodeId,
+        node_repository: NodeRepository,
+    ) -> AIAgent:
+        node = node_repository.get_by_id(node_id)
+        if (
+            node is None
+            or getattr(node, "deleted", False)
+            or getattr(node, "deactivated", False)
+        ):
+            return self
+        if node_id not in self.node_ids:
+            new_node_ids = self.node_ids.copy()
+            new_node_ids.append(node_id)
+            return AIAgent(
+                id=self.id,
+                user_id=self.user_id,
+                name=self.name,
+                llm_model=self.llm_model,
+                created_at=self.created_at,
+                updated_at=self._clock(),
+                description=self.description,
+                base_prompt=self.base_prompt,
+                node_ids=new_node_ids,
+                deleted_at=self.deleted_at,
+                clock=self._clock,
+            )
         return self
 
-    def attach_node(self, node_id: NodeId) -> bool:
-        """
-        Attach a node (tool) to the agent.
-
-        Ensures that the same node is not attached more than once.
-        """
-        if node_id not in self.node_ids:
-            self.node_ids.append(node_id)
-            self._touch()
-            return True
-        return False
-
-    def detach_node(self, node_id: NodeId) -> bool:
+    def detach_node(self, node_id: NodeId) -> AIAgent:
         """
         Detach a node (tool) from the agent.
 
         Handles cases where the node is not attached.
         """
         if node_id in self.node_ids:
-            self.node_ids.remove(node_id)
-            self._touch()
-            return True
-        return False
-
-    def _touch(self) -> None:
-        """
-        Update the timestamp to the current time using the entity's clock.
-        """
-        self.updated_at = self._clock()
+            new_node_ids = self.node_ids.copy()
+            new_node_ids.remove(node_id)
+            return AIAgent(
+                id=self.id,
+                user_id=self.user_id,
+                name=self.name,
+                llm_model=self.llm_model,
+                created_at=self.created_at,
+                updated_at=self._clock(),
+                description=self.description,
+                base_prompt=self.base_prompt,
+                node_ids=new_node_ids,
+                deleted_at=self.deleted_at,
+                clock=self._clock,
+            )
+        return self
