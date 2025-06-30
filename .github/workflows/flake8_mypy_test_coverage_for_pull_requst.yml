@@ -1,0 +1,42 @@
+name: Flake8 Lint, Mypy Check and Test Coverage
+
+on:
+  pull_request:
+    branches:
+      - 'main'
+      - 'develop'
+
+jobs:
+  lint-and-type-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13.5'
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "export PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
+
+      - name: Install dependencies
+        run: |
+          poetry install --all-groups
+
+      - name: Run flake8
+        run: |
+          poetry run flake8 .
+
+      - name: Run mypy
+        run: |
+          poetry run mypy .
+
+      - name: Run tests with coverage
+        run: |
+          poetry run bash -c "coverage run --source=src -m pytest"
+          poetry run coverage report --fail-under=70
