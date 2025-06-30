@@ -7,6 +7,8 @@ from src.myjarvis.domain.exceptions import (
     MessageHasInvalidParentId,
     MessageNotFound,
     MessageCouldNotBeEmpty,
+    MessageTooLong,
+    WrongIdType,
 )
 from src.myjarvis.domain.services.message_operations_service import (
     MessageOperationsService,
@@ -60,6 +62,7 @@ class FakeMessage(Message):
         attachments=None,
         metadata=None,
         total_tokens=1,
+        max_text_length=1000,
     ):
         super().__init__(
             message_id=message_id or uuid4(),
@@ -71,6 +74,7 @@ class FakeMessage(Message):
             attachments=attachments or [],
             metadata=metadata or {},
             total_tokens=total_tokens,
+            max_text_length=max_text_length,
         )
 
 
@@ -157,6 +161,11 @@ def test_add_message_invalid_parent(service, msg):
         service.add_message(m, c, None)
 
 
+def test_add_message_non_uuid_parent_id(service, msg):
+    with pytest.raises(WrongIdType):
+        FakeMessage(parent_message_id="not-a-uuid")
+
+
 def test_add_message_empty_collection(service, msg):
     c = make_collection()
     result = service.add_message(msg, c, None)
@@ -173,7 +182,7 @@ def test_add_message_reach_limits(service, msg, msg2):
 
 def test_add_message_long_text(service, msg):
     c = make_collection([msg])
-    m = FakeMessage(text="x" * 10000)
+    m = FakeMessage(text="x" * 10000, max_text_length=None)
     result = service.add_message(m, c, None)
     assert m.message_id in result.messages
 
@@ -356,3 +365,10 @@ def test_remove_multiple_messages_all(service, msg, msg2):
         [msg.message_id, msg2.message_id], c
     )
     assert len(result.messages) == 0
+
+
+def test_message_creation_exceeds_max_text_length():
+    max_text_length = 1000
+    long_text = "x" * (max_text_length + 1)
+    with pytest.raises(MessageTooLong):
+        FakeMessage(text=long_text, max_text_length=max_text_length)
