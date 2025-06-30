@@ -25,7 +25,7 @@ class ChatContext:
         agent_id: UUID,
         user_id: UUID,
         message_service: MessageOperationsService,
-        message_collection: MessageCollection = MessageCollection(),
+        message_collection: Optional[MessageCollection] = None,
         limits: ChatLimits = ChatLimits(),
         created_at: Optional[datetime] = None,
         updated_at: Optional[datetime] = None,
@@ -33,7 +33,7 @@ class ChatContext:
         self._context_id = context_id
         self._agent_id = agent_id
         self._user_id = user_id
-        self._message_collection = message_collection
+        self._message_collection = message_collection or MessageCollection()
         self._message_service = message_service
         self._limits = limits
         self._created_at = created_at or datetime.now()
@@ -66,7 +66,7 @@ class ChatContext:
         agent_id: UUID,
         user_id: UUID,
         message_service: MessageOperationsService,
-        message_collection: MessageCollection = MessageCollection(),
+        message_collection: Optional[MessageCollection] = None,
         max_messages: Optional[int] = None,
         max_tokens: Optional[int] = None,
         timeout: Optional[int] = None,
@@ -77,7 +77,7 @@ class ChatContext:
             agent_id=agent_id,
             user_id=user_id,
             message_service=message_service,
-            message_collection=message_collection,
+            message_collection=message_collection or MessageCollection(),
             limits=ChatLimits(
                 max_messages=max_messages,
                 max_tokens=max_tokens,
