@@ -14,3 +14,16 @@ Implementation details:
   - `delete(node_id: NodeId) -> None`
 - Implementations of this interface will reside in the infrastructure layer.
 """
+
+from abc import ABC, abstractmethod
+from typing import Optional
+
+from src.myjarvis.domain.entities import Node
+
+
+class NodeRepository(ABC):
+
+    @abstractmethod
+    def get_by_id(self, node_id: str) -> Optional[Node]:
+        """Retrieves a Node by its unique ID."""
+        pass
