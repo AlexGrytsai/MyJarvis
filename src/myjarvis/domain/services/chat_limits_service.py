@@ -5,6 +5,8 @@ from src.myjarvis.domain.value_objects import Message, ChatLimits
 
 
 class ChatLimitStrategy(ABC):
+    priority = 100
+
     @abstractmethod
     def apply(
         self,
@@ -15,6 +17,8 @@ class ChatLimitStrategy(ABC):
 
 
 class MaxMessagesLimitStrategy(ChatLimitStrategy):
+    priority = 10
+
     def apply(
         self,
         messages: List[Message],
@@ -26,6 +30,8 @@ class MaxMessagesLimitStrategy(ChatLimitStrategy):
 
 
 class MaxTokensLimitStrategy(ChatLimitStrategy):
+    priority = 0
+
     def apply(
         self,
         messages: List[Message],
@@ -49,7 +55,9 @@ class MaxTokensLimitStrategy(ChatLimitStrategy):
 
 class ChatContextLimitsService:
     def __init__(self, strategies: List[ChatLimitStrategy]):
-        self.strategies = strategies
+        self.strategies = sorted(
+            strategies, key=lambda s: getattr(s, 'priority', 100)
+        )
 
     def apply_limits(
         self, messages: List[Message], limits: ChatLimits
