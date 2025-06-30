@@ -31,7 +31,7 @@ class FakeExpirationService:
 class FakeLimitsService:
     def apply_limits(self, messages, limits):
         if limits.max_messages:
-            messages = messages[-limits.max_messages :]
+            messages = messages[-limits.max_messages:]
         if limits.max_tokens:
             total = 0
             result = []
