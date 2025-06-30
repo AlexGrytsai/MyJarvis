@@ -128,3 +128,7 @@ class MessageNotFound(DomainException):
 
 class UnexpectedException(DomainException):
     """Raised when an unexpected exception is raised."""
+
+
+class InvalidChatContextServiceError(DomainException):
+    pass

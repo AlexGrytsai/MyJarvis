@@ -11,7 +11,8 @@ class ExpirationStrategy(Protocol):
 
     def is_expired(
         self, message: Message, now: datetime, timeout: int
-    ) -> bool: ...
+    ) -> bool:
+        pass
 
 
 class DefaultExpirationStrategy:
@@ -37,7 +38,8 @@ class MessageExpirationService:
         expiration_strategy: ExpirationStrategy = DefaultExpirationStrategy(),
     ):
         """
-        :param now_provider: Function to get the current datetime (for testability)
+        :param now_provider: Function to get the current datetime
+                             (for testability)
         :param expiration_strategy: Strategy for checking message expiration
         """
         self._now_provider = now_provider
@@ -47,7 +49,8 @@ class MessageExpirationService:
         self, messages_collection: MessageCollection, timeout: int
     ) -> MessageCollection:
         """
-        Removes expired messages from the collection and returns a new collection.
+        Removes expired messages from the collection and returns a new
+        collection.
         :param messages_collection: Collection of messages
         :param timeout: Timeout in seconds
         :return: New MessageCollection without expired messages
