@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass, field, InitVar
 from datetime import datetime, timezone
 from typing import Callable, List, Optional
@@ -12,6 +13,8 @@ from src.myjarvis.domain.value_objects import (
 )
 from src.myjarvis.domain.value_objects.ai_agent_name import AgentName
 from src.myjarvis.domain.value_objects.llm_model import LlmModel
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -226,4 +229,7 @@ class AIAgent:
                 deleted_at=self.deleted_at,
                 clock=self._clock,
             )
+        logger.warning(
+            f"Attempted to detach node_id {node_id} which was not attached."
+        )
         return self
