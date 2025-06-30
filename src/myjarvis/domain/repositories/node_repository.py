@@ -19,11 +19,12 @@ from abc import ABC, abstractmethod
 from typing import Optional
 
 from src.myjarvis.domain.entities import Node
+from src.myjarvis.domain.value_objects import NodeId
 
 
 class NodeRepository(ABC):
 
     @abstractmethod
-    def get_by_id(self, node_id: str) -> Optional[Node]:
+    def get_by_id(self, node_id: NodeId) -> Optional[Node]:
         """Retrieves a Node by its unique ID."""
         pass
