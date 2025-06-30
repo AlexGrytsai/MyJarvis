@@ -26,7 +26,7 @@ class ChatContext:
         user_id: UUID,
         message_service: MessageOperationsService,
         message_collection: Optional[MessageCollection] = None,
-        limits: ChatLimits = ChatLimits(),
+        limits: Optional[ChatLimits] = None,
         created_at: Optional[datetime] = None,
         updated_at: Optional[datetime] = None,
     ):
@@ -35,7 +35,7 @@ class ChatContext:
         self._user_id = user_id
         self._message_collection = message_collection or MessageCollection()
         self._message_service = message_service
-        self._limits = limits
+        self._limits = limits or ChatLimits()
         self._created_at = created_at or datetime.now()
         self._updated_at = updated_at or datetime.now()
 
