@@ -10,6 +10,7 @@ from src.myjarvis.domain.value_objects.chat_limits import ChatLimits
 from src.myjarvis.domain.services.message_operations_service import (
     MessageOperationsService,
 )
+from src.myjarvis.domain.value_objects.message_role import MessageRole
 
 
 class FakeMessageOperationsService(MessageOperationsService):
@@ -22,7 +23,11 @@ class FakeMessageOperationsService(MessageOperationsService):
 
     def add_message(self, message, message_collection, limits):
         self.added_messages.append(message)
-        return message_collection.add_message(message)
+        messages = list(message_collection.messages.values())
+        messages.append(message)
+        if limits and limits.max_messages is not None:
+            messages = messages[-limits.max_messages :]
+        return message_collection.create(messages)
 
     def update_message(
         self,
@@ -316,3 +321,134 @@ def test_create_with_custom_timestamp():
         context_id, agent_id, user_id, message_service, created_at=now
     )
     assert context._created_at == now
+
+
+def make_context():
+    return ChatContext(
+        context_id=uuid4(),
+        agent_id=uuid4(),
+        user_id=uuid4(),
+        message_service=FakeMessageOperationsService(),
+        message_collection=MessageCollection(),
+        limits=ChatLimits(max_messages=3, max_tokens=100, timeout=60),
+        created_at=datetime.now(),
+        updated_at=datetime.now(),
+    )
+
+
+def make_message(text="hello", message_id=None):
+    return Message(
+        message_id=message_id or uuid4(),
+        sender="user",
+        text=text,
+        role=MessageRole.USER,
+        parent_message_id=None,
+        attachments=[],
+        metadata={},
+        total_tokens=1,
+    )
+
+
+def test_add_message_and_get_history():
+    context = make_context()
+    msg = make_message("test")
+    context = context.add_message(msg)
+    history = context.get_history()
+    assert len(history) == 1
+    assert history[0].text == "test"
+
+
+def test_add_message_respects_limits():
+    context = make_context()
+    for i in range(3):
+        context = context.add_message(make_message(f"msg{i}"))
+    assert len(context.get_history()) == 3
+    context = context.add_message(make_message("overflow"))
+    assert len(context.get_history()) <= 3
+
+
+def test_update_message():
+    context = make_context()
+    msg = make_message("original")
+    context = context.add_message(msg)
+    updated_msg = make_message("updated", message_id=msg.message_id)
+    context = context.add_message(updated_msg)
+    history = context.get_history()
+    assert any(m.text == "updated" for m in history)
+
+
+def test_update_message_nonexistent():
+    context = make_context()
+    msg = make_message("not in history")
+    context.update_message(msg)
+    assert len(context.get_history()) == 0
+
+
+def test_remove_message():
+    context = make_context()
+    msg = make_message("to remove")
+    context = context.add_message(msg)
+    context = context.remove_message(msg.message_id)
+    assert len(context.get_history()) == 0
+
+
+def test_remove_message_nonexistent():
+    context = make_context()
+    with pytest.raises(Exception):
+        context.remove_message(uuid4())
+    assert len(context.get_history()) == 0
+
+
+def test_clear_history():
+    context = make_context()
+    context.add_message(make_message("msg1"))
+    context.add_message(make_message("msg2"))
+    context.clear_history()
+    assert len(context.get_history()) == 0
+
+
+def test_remove_expired():
+    context = make_context()
+    msg = make_message("expire me")
+    context.add_message(msg)
+    context.remove_expired()
+    assert context._message_service.expired_removed
+
+
+def test_partial_remove():
+    context = make_context()
+    msg1 = make_message("keep")
+    msg2 = make_message("remove")
+    context = context.add_message(msg1)
+    context = context.add_message(msg2)
+    context = context.partial_remove([msg2.message_id])
+    history = context.get_history()
+    assert len(history) == 1
+    assert history[0].message_id == msg1.message_id
+
+
+def test_restore_history():
+    context = make_context()
+    msg1 = make_message("restore1")
+    msg2 = make_message("restore2")
+    context = context.restore_history([msg1, msg2])
+    history = context.get_history()
+    assert len(history) == 2
+    assert history[0].text == "restore1"
+    assert history[1].text == "restore2"
+
+
+def test_update_limits():
+    context = make_context()
+    context = context.update_limits(
+        max_messages=5, max_tokens=200, timeout=120
+    )
+    assert context._limits.max_messages == 5
+    assert context._limits.max_tokens == 200
+    assert context._limits.timeout == 120
+
+
+def test_update_limits_invalid():
+    context = make_context()
+    with pytest.raises(Exception):
+        context.update_limits(max_messages=-1, max_tokens=100, timeout=60)
