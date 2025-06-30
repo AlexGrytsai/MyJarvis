@@ -99,16 +99,20 @@ class MessageCollection:
         result: List[Message] = []
         token_count = 0
 
-        for message in reversed(self.messages.values()):
+        # Sort messages by timestamp to ensure correct order
+        sorted_messages = sorted(
+            self.messages.values(), key=lambda m: m.timestamp, reverse=True
+        )
+
+        for message in sorted_messages:
             token_count += message.total_tokens
             if (max_tokens and token_count > max_tokens) or (
                 max_messages and len(result) >= max_messages
             ):
                 break
             result.append(message)
-        result.reverse()
 
-        return result
+        return list(reversed(result))
 
     def restore_history(self, messages: List[Message]) -> MessageCollection:
         """
