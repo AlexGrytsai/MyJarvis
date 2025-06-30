@@ -140,7 +140,7 @@ def test_repr_and_str():
     assert "ChatContextServices" in r
 
 
-def test_thread_safety():
+def run_threads_for_chat_context_services(count):
     import threading
 
     results = []
@@ -148,11 +148,16 @@ def test_thread_safety():
     def worker():
         results.append(ChatContextServices.create_default())
 
-    threads = [threading.Thread(target=worker) for _ in range(10)]
+    threads = [threading.Thread(target=worker) for _ in range(count)]
     for t in threads:
         t.start()
     for t in threads:
         t.join()
+    return results
+
+
+def test_thread_safety():
+    results = run_threads_for_chat_context_services(10)
     assert len(results) == 10
     assert all(isinstance(s, ChatContextServices) for s in results)
 
