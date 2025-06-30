@@ -27,7 +27,7 @@ class Message:
     """
 
     message_id: UUID
-    sender: Union[str, UUID] = ""
+    sender: Union[str, UUID]
     text: str = ""
     timestamp: datetime = field(default_factory=datetime.now)
     role: MessageRole = MessageRole.USER
