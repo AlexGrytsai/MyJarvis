@@ -145,9 +145,10 @@ class ChatContext:
             message_collection=self._message_collection,
             timeout=self._limits.timeout,
         )
-        self._create_updated_context(message_collection=message_collection)
 
-        return self
+        return self._create_updated_context(
+            message_collection=message_collection
+        )
 
     def partial_remove(
         self,
@@ -162,13 +163,11 @@ class ChatContext:
 
     def restore_history(self, messages: List[Message]) -> ChatContext:
         sorted_messages = sorted(messages, key=lambda m: m.timestamp)
-        self._create_updated_context(
+        return self._create_updated_context(
             message_collection=self._message_collection.restore_history(
                 sorted_messages
             )
         )
-
-        return self
 
     def update_limits(
         self,
