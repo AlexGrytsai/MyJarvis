@@ -271,7 +271,7 @@ def test_update_message_not_found(service, msg):
 def test_update_message_empty_collection(service):
     c = make_collection()
     with pytest.raises(MessageNotFound):
-        MessageOperationsService.update_message(uuid4(), c, text="x")
+        service.update_message(uuid4(), c, text="x")
 
 
 def test_update_message_empty_values(service, msg):
