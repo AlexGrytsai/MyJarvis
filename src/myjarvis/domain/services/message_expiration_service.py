@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Callable, Protocol
+from typing import Callable, Protocol, Optional
 
 from src.myjarvis.domain.value_objects import MessageCollection, Message
 
@@ -35,7 +35,7 @@ class MessageExpirationService:
     def __init__(
         self,
         now_provider: Callable[[], datetime] = datetime.now,
-        expiration_strategy: ExpirationStrategy = DefaultExpirationStrategy(),
+        expiration_strategy: Optional[ExpirationStrategy] = None,
     ):
         """
         :param now_provider: Function to get the current datetime
@@ -43,7 +43,9 @@ class MessageExpirationService:
         :param expiration_strategy: Strategy for checking message expiration
         """
         self._now_provider = now_provider
-        self._expiration_strategy = expiration_strategy
+        self._expiration_strategy = (
+            expiration_strategy or DefaultExpirationStrategy()
+        )
 
     def remove_expired_messages(
         self, messages_collection: MessageCollection, timeout: int
