@@ -13,3 +13,7 @@ Implementation details:
   with a name, description, and parameter schema.
 - The entity should have methods to validate its configuration.
 """
+
+
+class Node:
+    pass
