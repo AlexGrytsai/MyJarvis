@@ -360,8 +360,9 @@ def test_add_message_and_get_history():
 
 def test_add_message_respects_limits():
     context = make_context()
-    for i in range(3):
-        context = context.add_message(make_message(f"msg{i}"))
+    context = context.add_message(make_message("msg0"))
+    context = context.add_message(make_message("msg1"))
+    context = context.add_message(make_message("msg2"))
     assert len(context.get_history()) == 3
     context = context.add_message(make_message("overflow"))
     assert len(context.get_history()) <= 3
