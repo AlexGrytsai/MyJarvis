@@ -1,14 +1,17 @@
-import pytest
+from datetime import datetime
 from uuid import uuid4
-from datetime import datetime, timedelta
+
+import pytest
+
 from src.myjarvis.domain.entities.chat_context import ChatContext
+from src.myjarvis.domain.exceptions import MessageNotFound, MaxMessagesNotValid
+from src.myjarvis.domain.services.message_operations_service import (
+    MessageOperationsService,
+)
+from src.myjarvis.domain.value_objects.chat_limits import ChatLimits
 from src.myjarvis.domain.value_objects.message import Message
 from src.myjarvis.domain.value_objects.message_collection import (
     MessageCollection,
-)
-from src.myjarvis.domain.value_objects.chat_limits import ChatLimits
-from src.myjarvis.domain.services.message_operations_service import (
-    MessageOperationsService,
 )
 from src.myjarvis.domain.value_objects.message_role import MessageRole
 
@@ -395,7 +398,7 @@ def test_remove_message():
 
 def test_remove_message_nonexistent():
     context = make_context()
-    with pytest.raises(Exception):
+    with pytest.raises(MessageNotFound):
         context.remove_message(uuid4())
     assert len(context.get_history()) == 0
 
@@ -451,5 +454,5 @@ def test_update_limits():
 
 def test_update_limits_invalid():
     context = make_context()
-    with pytest.raises(Exception):
+    with pytest.raises(MaxMessagesNotValid):
         context.update_limits(max_messages=-1, max_tokens=100, timeout=60)
